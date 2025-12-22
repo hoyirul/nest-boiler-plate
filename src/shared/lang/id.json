@@ -1,0 +1,72 @@
+{
+  "api": {
+    "modules": {
+      "user": {
+        "fetched_all": "Data pengguna berhasil diambil",
+        "fetched_one": "Data pengguna berhasil diambil",
+        "created": "Pengguna berhasil dibuat",
+        "updated": "Pengguna berhasil diperbarui",
+        "deleted": "Pengguna berhasil dihapus",
+        "not_found": "Pengguna tidak ditemukan",
+        "unauthorized": "Anda tidak memiliki izin untuk mengakses sumber daya ini",
+        "validation": {
+          "user": {
+            "exists": "Pengguna sudah ada"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "email": {
+            "required": "Email wajib diisi",
+            "invalid": "Format email tidak valid"
+          },
+          "age": {
+            "required": "Usia wajib diisi",
+            "restriction": "Usia harus antara 18 hingga 100",
+            "numeric": "Usia harus berupa angka"
+          }
+        }
+      },
+      "category": {
+        "fetched": "Data kategori berhasil diambil",
+        "created": "Kategori berhasil dibuat",
+        "updated": "Kategori berhasil diperbarui",
+        "deleted": "Kategori berhasil dihapus",
+        "not_found": "Kategori tidak ditemukan",
+        "validation": {
+          "category": {
+            "exists": "Kategori sudah ada"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          }
+        }
+      },
+      "auth": {
+        "login_success": "Login berhasil",
+        "logout_success": "Logout berhasil",
+        "fetched_me": "Data pengguna berhasil diambil",
+        "validation": {
+          "user_not_found": "Pengguna tidak ditemukan",
+          "invalid_credentials": "Kredensial tidak valid",
+          "token_not_found": "Token tidak ditemukan",
+          "invalid_token": "Token tidak valid",
+          "invalid_jwt_secret": "Token JWT tidak valid",
+          "expired_token": "Token telah kedaluwarsa"
+        }
+      }
+    },
+    "common": {
+      "server_error": "Terjadi kesalahan pada server",
+      "unauthorized": "Anda tidak memiliki izin untuk mengakses sumber daya ini",
+      "bad_request": "Permintaan tidak valid",
+      "forbidden": "Akses ditolak",
+      "not_found": "Data tidak ditemukan",
+      "invalid_id": "ID tidak valid",
+      "validation_failed": "Validasi gagal",
+      "too_many_requests": "Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti"
+    }
+  }
+}

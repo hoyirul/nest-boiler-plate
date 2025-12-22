@@ -1,0 +1,30 @@
+{
+  "api": {
+    "modules": {
+      "user": {
+        "fetched_all": "User data fetched successfully",
+        "fetched_one": "User data fetched successfully",
+        "created": "User created successfully",
+        "updated": "User updated successfully",
+        "deleted": "User deleted successfully",
+        "not_found": "User not found",
+        "unauthorized": "You do not have permission to access this resource"
+      },
+      "auth": {
+        "login_success": "Login successful",
+        "invalid_credential": "Email or password is incorrect",
+        "logout_success": "Logout successful",
+        "token_expired": "Token expired",
+        "token_invalid": "Token is invalid",
+        "register_success": "Registration successful"
+      }
+    },
+    "common": {
+      "server_error": "Server error occurred",
+      "bad_request": "Bad request",
+      "forbidden": "Access denied",
+      "not_found": "Data not found",
+      "invalid_id": "Invalid ID"
+    }
+  }
+}
