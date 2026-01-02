@@ -1,79 +1,79 @@
-import { Injectable } from "@nestjs/common";
-import bcrypt from "bcryptjs";
-
-import { AuthRepository } from "@/modules/v1/auth/repositories/auth.repository";
-import { AuthSessionRepository } from "@/modules/v1/auth/repositories/auth-session.repository";
-import { LoginDTO } from "@/modules/v1/auth/domains/auth.types";
-import { AuthError } from "@/shared/utils/errors";
-import { createToken } from "@/shared/utils/jwt";
-import { env } from "@/core/config/env";
+import { Injectable } from '@nestjs/common';
+import bcrypt from 'bcryptjs';
+import { AuthRepository } from '@/modules/v1/auth/repositories/auth.repository';
+import { AuthSessionRedisRepository } from '@/modules/v1/auth/repositories/auth.redis.repository';
+import { LoginDTO } from '@/modules/v1/auth/domains/auth.types';
+import { AuthError } from '@/shared/utils/errors';
+import { createToken, verifyToken } from '@/shared/utils/jwt';
+import { env } from '@/core/config/env';
 
 @Injectable()
 export class AuthUseCase {
   constructor(
     private readonly repo: AuthRepository,
-    private readonly sessionRepo: AuthSessionRepository
+    private readonly sessionRepo: AuthSessionRedisRepository
   ) {}
 
   async login(payload: LoginDTO) {
     const user = await this.repo.findByEmail(payload.email);
-    if (!user) {
-      throw AuthError("api.modules.auth.validation.invalid_credentials");
-    }
+    if (!user) throw AuthError('api.modules.auth.validation.invalid_credentials');
 
     const valid = await bcrypt.compare(payload.password, user.password);
-    if (!valid) {
-      throw AuthError("api.modules.auth.validation.invalid_credentials");
-    }
+    if (!valid) throw AuthError('api.modules.auth.validation.invalid_credentials');
 
-    const expiresInSec = Number(env.JWT_EXPIRES_IN) || 86400;
-    const expiredAt = new Date(Date.now() + expiresInSec * 1000);
+    const expiresInSec = parseInt(env.JWT_EXPIRES_IN) || 86400;
+    const { token, jti, exp } = await createToken({ id: String(user.id), email: user.email }, expiresInSec);
 
-    const token = await createToken({
-      id: user.id,
-      email: user.email,
-    });
-
-    await this.sessionRepo.createSession(
-      user.id,
-      token,
-      expiredAt
-    );
+    const ttl = exp - Math.floor(Date.now() / 1000);
+    await this.sessionRepo.createSession(String(user.id), jti, ttl);
 
     return {
-      token_type: "Bearer",
+      token_type: 'Bearer',
       access_token: token,
-      expires_in: expiresInSec,
+      expires_in: ttl,
       user: {
         id: user.id,
         name: user.name,
-        email: user.email,
-      },
+        email: user.email
+      }
     };
   }
 
   async me(token: string) {
-    const session = await this.sessionRepo.findByToken(token);
-    if (!session) {
-      throw AuthError("api.modules.auth.validation.token_not_found");
-    }
+    const payload = await verifyToken(token);
+    const { token: userId, rbac } = await this.sessionRepo.findByJti(payload.jti);
+    if (!userId) throw AuthError('api.modules.auth.validation.token_not_found');
 
-    const user = await this.repo.findById(session.user_id);
-    if (!user) {
-      throw AuthError("api.modules.auth.validation.user_not_found");
+    // if redis not found
+    if(!rbac) {
+      const user = await this.repo.findByIdWithRbac(String(userId));
+      if (!user) throw AuthError('api.modules.auth.validation.user_not_found');
+
+      const rbacData = JSON.stringify({
+        roles: user.roles,
+        permissions: user.permissions
+      });
+
+      await this.sessionRepo.createCacheRbac(String(user.id), rbacData, 3600); // 1 jam
+
+      return {
+        id: String(user.id),
+        email: user.email,
+        roles: user.roles,
+        permissions: user.permissions
+      };
     }
 
     return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      status: user.status,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
+      id: String(userId),
+      email: payload.email,
+      roles: JSON.parse(rbac).roles,
+      permissions: JSON.parse(rbac).permissions
     };
   }
 
-  async logout(token: string): Promise<void> {
-    await this.sessionRepo.deleteSession(token);
+  async logout(token: string) {
+    const payload = await verifyToken(token);
+    await this.sessionRepo.deleteSession(payload.jti);
   }
 }

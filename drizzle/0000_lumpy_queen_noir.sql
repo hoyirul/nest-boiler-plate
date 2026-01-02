@@ -1,9 +1,11 @@
 CREATE TYPE "public"."status" AS ENUM('active', 'inactive', 'banned');--> statement-breakpoint
-CREATE TABLE "categories" (
+CREATE TABLE "examples" (
 	"id" serial PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
+	"attachment" text NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"deleted_at" timestamp DEFAULT null
 );
 --> statement-breakpoint
 CREATE TABLE "model_has_permissions" (
@@ -25,7 +27,8 @@ CREATE TABLE "permissions" (
 	"name" varchar(100) NOT NULL,
 	"guard_name" varchar(100) DEFAULT 'web',
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
+	"updated_at" timestamp DEFAULT now(),
+	"deleted_at" timestamp DEFAULT null
 );
 --> statement-breakpoint
 CREATE TABLE "role_has_permissions" (
@@ -38,19 +41,10 @@ CREATE TABLE "roles" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"name" varchar(100) NOT NULL,
 	"guard_name" varchar(100) DEFAULT 'web',
+	"level" integer NOT NULL,
 	"created_at" timestamp DEFAULT now(),
-	"updated_at" timestamp DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE "user_sessions" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" varchar(36) NOT NULL,
-	"token" varchar(512) NOT NULL,
-	"refresh_token" varchar(512) NOT NULL,
-	"expired_at" timestamp NOT NULL,
-	"refresh_expired_at" timestamp NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"updated_at" timestamp DEFAULT now() NOT NULL
+	"updated_at" timestamp DEFAULT now(),
+	"deleted_at" timestamp DEFAULT null
 );
 --> statement-breakpoint
 CREATE TABLE "users" (

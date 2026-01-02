@@ -1,0 +1,16 @@
+/*
+ * Copyright (c) 2026 Madhai
+ * src/core/db/schema/{{name}}.schema.ts
+ */
+
+import { pgTable, serial, varchar, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+
+export const {{plural name}} = pgTable("{{plural name}}", {
+  id: serial("id").primaryKey(),
+  {{#each fieldsArray}}
+  {{name}}: {{#if (eq type "string")}}varchar("{{name}}", { length: {{length}} }).notNull{{else if (eq type "number")}}integer("{{name}}").notNull{{else if (eq type "boolean")}}boolean("{{name}}").notNull{{/if}},
+  {{/each}}
+  created_at: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),
+  updated_at: timestamp("updated_at", { withTimezone: false }).defaultNow().notNull(),
+  deleted_at: timestamp("deleted_at", { withTimezone: false }).default(null as unknown as Date),
+});

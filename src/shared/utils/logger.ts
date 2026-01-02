@@ -2,7 +2,6 @@
 import fs from "fs";
 import path from "path";
 import { getMessage } from "@/shared/lang";
-import { Request } from "express"; // ⬅️ OPTIONAL (lihat catatan bawah)
 
 const LOG_DIR = process.env.LOG_PATH || path.resolve(process.cwd(), "logs");
 
@@ -85,7 +84,7 @@ class Logger {
 export const Loggers = {
   user: new Logger("USER"),
   test: new Logger("TEST"),
-  category: new Logger("CATEGORY"),
+  example: new Logger("EXAMPLE"),
   product: new Logger("PRODUCT"),
   auth: new Logger("AUTH"),
   general: new Logger("GENERAL"),

@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2026 Madhai
+ * src/modules/v1/{{name}}/domains/{{name}}.types.ts
+ */
+
+import { z } from "zod";
+
+export const Create{{pascal name}}Schema = z.object({
+  {{#each fieldsArray}}
+  {{name}}: z.{{zodType}}().{{#if required}}min(1, "api.modules.{{../name}}.validation.{{name}}.required"){{/if}},
+  {{/each}}
+});
+
+export const Update{{pascal name}}Schema = z.object({
+  {{#each fieldsArray}}
+  {{name}}: z.{{zodType}}().optional(),
+  {{/each}}
+});
+
+export type Create{{pascal name}}DTO = z.infer<typeof Create{{pascal name}}Schema>;
+export type Update{{pascal name}}DTO = z.infer<typeof Update{{pascal name}}Schema>;

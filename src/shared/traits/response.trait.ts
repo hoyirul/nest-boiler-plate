@@ -7,14 +7,14 @@ export class ResponseTrait {
     module,
     statusLabel,
     message,
-    data,
     httpCode = HttpStatus.OK,
+    data,
   }: {
     module: string;
     statusLabel: string;
     message: string;
-    data?: any;
     httpCode?: number;
+    data?: any;
   }) {
     const code = makeCode(RESP_TYPE.SUCCESS, module, httpCode, statusLabel);
     return {
@@ -30,15 +30,15 @@ export class ResponseTrait {
     statusLabel,
     message,
     errors,
-    data,
     httpCode = HttpStatus.INTERNAL_SERVER_ERROR,
+    data,
   }: {
     module: string;
     statusLabel: string;
     message: string;
     errors?: any;
-    data?: any;
     httpCode?: number;
+    data?: any;
   }) {
     const code = makeCode(RESP_TYPE.ERROR, module, httpCode, statusLabel);
     return {

@@ -1,0 +1,53 @@
+/*
+ * Copyright (c) 2026 Madhai
+ * src/modules/v1/{{name}}/usecases/{{name}}.usecase.ts
+ */
+
+import { {{properCase name}}Repository } from "@/modules/v1/{{name}}/repositories/{{name}}.repository";
+import { Create{{properCase name}}DTO, Update{{properCase name}}DTO } from "@/modules/v1/{{name}}/domains/{{name}}.types";
+import { NotFoundError } from "@/shared/utils/errors";
+import { buildPaginationMeta } from "@/shared/utils/pagination";
+
+export class {{properCase name}}UseCase {
+  constructor(private readonly repo = new {{properCase name}}Repository()) {}
+
+  async create(payload: Create{{properCase name}}DTO) {
+    return this.repo.create(payload);
+  }
+
+  async list(page: number, perPage: number, keywords: string, filters?: Record<string, string>) {
+    const offset = (page - 1) * perPage;
+    const { data, total } = await this.repo.findAll(perPage, offset, keywords, filters);
+
+    return {
+      items: data,
+      pagination: buildPaginationMeta(page, perPage, total),
+    };
+  }
+
+  async detail(id: number) {
+    const item = await this.repo.findById(id);
+    if (!item) {
+      throw NotFoundError("api.modules.{{name}}.not_found");
+    }
+    return item;
+  }
+
+  async update(id: number, payload: Update{{properCase name}}DTO) {
+    const updated = await this.repo.update(id, payload);
+    if (!updated) {
+      throw NotFoundError("api.modules.{{name}}.not_found");
+    }
+    return updated;
+  }
+
+  async delete(id: number) {
+    const item = await this.repo.findById(id);
+    if (!item) {
+      throw NotFoundError("api.modules.{{name}}.not_found");
+    }
+
+    await this.repo.delete(id);
+    return { success: true };
+  }
+}

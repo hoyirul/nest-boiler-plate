@@ -3,7 +3,7 @@ export const MODULE = {
   GENERAL: "GE",
   AUTH: "AU",
   USER: "US",
-  CATEGORY: "CA",
+  EXAMPLE: "EX",
   PRODUCT: "PR",
   CONNECTION: "CN",
   TEST: "TE",

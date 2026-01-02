@@ -6,4 +6,5 @@ export const permissions = pgTable("permissions", {
   guard_name: varchar("guard_name", { length: 100 }).default("web"),
   created_at: timestamp("created_at").defaultNow(),
   updated_at: timestamp("updated_at").defaultNow(),
+  deleted_at: timestamp("deleted_at", { withTimezone: false }).default(null as unknown as Date),
 });

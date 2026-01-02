@@ -16,33 +16,41 @@ async function seed() {
     const insertedRoles = await db
       .insert(roles)
       .values([
-        { name: "superadmin", guard_name: "api" },
-        { name: "user", guard_name: "api" },
+        { name: "superadmin", guard_name: "api", level: 1 },
+        { name: "admin", guard_name: "api", level: 2 },
+        { name: "user", guard_name: "api", level: 3 },
       ])
       .returning({ id: roles.id, name: roles.name });
 
     const superadminRole = insertedRoles.find(r => r.name === "superadmin")!;
+    const adminRole = insertedRoles.find(r => r.name === "admin")!;
     const userRole = insertedRoles.find(r => r.name === "user")!;
 
     console.log("Seeding Permissions...");
     const insertedPermissions = await db
       .insert(permissions)
       .values([
-        { name: "view:user", guard_name: "api" },
-        { name: "create:user", guard_name: "api" },
-        { name: "edit:user", guard_name: "api" },
+        { name: "view:example", guard_name: "api" },
+        { name: "create:example", guard_name: "api" },
+        { name: "show:example", guard_name: "api" },
+        { name: "update:example", guard_name: "api" },
+        { name: "delete:example", guard_name: "api" },
       ])
       .returning({ id: permissions.id, name: permissions.name });
 
-    const viewUser = insertedPermissions.find(p => p.name === "view:user")!;
-    const createUser = insertedPermissions.find(p => p.name === "create:user")!;
-    const editUser = insertedPermissions.find(p => p.name === "edit:user")!;
+    const viewExample = insertedPermissions.find(p => p.name === "view:example")!;
+    const createExample = insertedPermissions.find(p => p.name === "create:example")!;
+    const showExample = insertedPermissions.find(p => p.name === "show:example")!;
+    const updateExample = insertedPermissions.find(p => p.name === "update:example")!;
+    const deleteExample = insertedPermissions.find(p => p.name === "delete:example")!;
 
     console.log("Seeding Role-Permissions...");
     await db.insert(roleHasPermissions).values([
-      { role_id: superadminRole.id, permission_id: viewUser.id },
-      { role_id: superadminRole.id, permission_id: createUser.id },
-      { role_id: superadminRole.id, permission_id: editUser.id },
+      { role_id: superadminRole.id, permission_id: viewExample.id },
+      { role_id: superadminRole.id, permission_id: createExample.id },
+      { role_id: superadminRole.id, permission_id: showExample.id },
+      { role_id: superadminRole.id, permission_id: updateExample.id },
+      { role_id: superadminRole.id, permission_id: deleteExample.id },
     ]);
 
     console.log("Seeding Users...");
@@ -74,7 +82,7 @@ async function seed() {
 
     console.log("Seeding Model-Permissions...");
     await db.insert(modelHasPermissions).values([
-      { permission_id: createUser.id, model_type: "User", model_id: superadminID },
+      { permission_id: createExample.id, model_type: "User", model_id: superadminID },
     ]);
 
     console.log("✅ Seeding finished!");

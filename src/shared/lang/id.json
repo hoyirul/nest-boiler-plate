@@ -28,25 +28,30 @@
           }
         }
       },
-      "category": {
-        "fetched": "Data kategori berhasil diambil",
-        "created": "Kategori berhasil dibuat",
-        "updated": "Kategori berhasil diperbarui",
-        "deleted": "Kategori berhasil dihapus",
-        "not_found": "Kategori tidak ditemukan",
+      "example": {
+        "fetched": "Data example berhasil diambil",
+        "created": "Example berhasil dibuat",
+        "updated": "Example berhasil diperbarui",
+        "deleted": "Example berhasil dihapus",
+        "not_found": "Example tidak ditemukan",
         "validation": {
-          "category": {
-            "exists": "Kategori sudah ada"
+          "example": {
+            "exists": "Example sudah ada"
           },
           "name": {
             "required": "Nama wajib diisi",
             "max_length": "Nama maksimal 100 karakter"
+          },
+          "attachment": {
+            "required": "Lampiran wajib diisi",
+            "invalid_type": "Tipe lampiran tidak valid",
+            "max_size": "Ukuran lampiran maksimal 2MB"
           }
         }
       },
       "auth": {
-        "login_success": "Login berhasil",
-        "logout_success": "Logout berhasil",
+        "logged_in": "Login berhasil",
+        "logged_out": "Logout berhasil",
         "fetched_me": "Data pengguna berhasil diambil",
         "validation": {
           "user_not_found": "Pengguna tidak ditemukan",
@@ -60,11 +65,15 @@
     },
     "common": {
       "server_error": "Terjadi kesalahan pada server",
+      "server_not_found": "Sumber daya tidak ditemukan",
       "unauthorized": "Anda tidak memiliki izin untuk mengakses sumber daya ini",
       "bad_request": "Permintaan tidak valid",
-      "forbidden": "Akses ditolak",
+      "forbidden": "Anda tidak memiliki hak akses untuk sumber daya ini",
       "not_found": "Data tidak ditemukan",
       "invalid_id": "ID tidak valid",
+      "missing_parameters": "Parameter wajib tidak lengkap",
+      "invalid_file_type": "Tipe file tidak valid",
+      "file_too_large": "Ukuran file terlalu besar",
       "validation_failed": "Validasi gagal",
       "too_many_requests": "Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti"
     }
