@@ -5,14 +5,27 @@
 
 import { {{properCase name}}Repository } from "@/modules/v1/{{name}}/repositories/{{name}}.repository";
 import { Create{{properCase name}}DTO, Update{{properCase name}}DTO } from "@/modules/v1/{{name}}/domains/{{name}}.types";
-import { NotFoundError } from "@/shared/utils/errors";
+import { NotFoundError, ValidationError } from "@/shared/utils/errors";
 import { buildPaginationMeta } from "@/shared/utils/pagination";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class {{properCase name}}UseCase {
-  constructor(private readonly repo = new {{properCase name}}Repository()) {}
+  constructor(private readonly repo: {{properCase name}}Repository) {}
 
   async create(payload: Create{{properCase name}}DTO) {
-    return this.repo.create(payload);
+    const db = await this.repo.getExecutor();
+
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.create>> => {
+      const isExist = await this.repo.isExist(payload.name);
+      if (isExist) {
+        throw ValidationError("api.common.validation_failed", {
+          name: "api.modules.{{name}}.already_exists",
+        });
+      }
+
+      return this.repo.create(payload, tx);
+    });
   }
 
   async list(page: number, perPage: number, keywords: string, filters?: Record<string, string>) {
@@ -34,20 +47,41 @@ export class {{properCase name}}UseCase {
   }
 
   async update(id: number, payload: Update{{properCase name}}DTO) {
-    const updated = await this.repo.update(id, payload);
-    if (!updated) {
-      throw NotFoundError("api.modules.{{name}}.not_found");
-    }
-    return updated;
+    const db = await this.repo.getExecutor();
+
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.update>> => {
+      const item = await this.repo.findById(id);
+      if (!item) {
+        throw NotFoundError("api.modules.{{name}}.not_found");
+      }
+
+      return this.repo.update(id, payload, tx);
+    });
   }
 
   async delete(id: number) {
-    const item = await this.repo.findById(id);
-    if (!item) {
-      throw NotFoundError("api.modules.{{name}}.not_found");
-    }
+    const db = await this.repo.getExecutor();
 
-    await this.repo.delete(id);
-    return { success: true };
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.delete>> => {
+      const item = await this.repo.findById(id);
+      if (!item) {
+        throw NotFoundError("api.modules.{{name}}.not_found");
+      }
+
+      return this.repo.delete(id, tx);
+    });
+  }
+
+  async restore(id: number) {
+    const db = await this.repo.getExecutor();
+
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.restore>> => {
+      const item = await this.repo.findById(id, true);
+      if (!item) {
+        throw NotFoundError("api.modules.{{name}}.not_found");
+      }
+      
+      return this.repo.restore(id, tx);
+    });
   }
 }

@@ -101,6 +101,31 @@ module.exports = function (plop) {
     return `Module ${moduleKey} added successfully!`;
   });
 
+  // =================
+  // Table Name
+  // =================
+  plop.setHelper('tableNamePlural', (moduleType, name) => {
+    let plural = '';
+    if (name.endsWith('y')) plural = name.slice(0, -1) + 'ies';
+    else if (name.endsWith('s')) plural = name + 'es';
+    else plural = name + 's';
+
+    return `${moduleType}_${plural.toLowerCase()}`;
+  });
+
+  // =================
+  // Preview Table
+  // =================
+  plop.setHelper('previewTable', (moduleType, name) => {
+    let plural = name.endsWith('y')
+      ? name.slice(0, -1) + 'ies'
+      : name.endsWith('s')
+        ? name + 'es'
+        : name + 's';
+
+    return `${moduleType}_${plural}`;
+  });
+
   // ===============================
   // GENERATOR
   // ===============================
@@ -124,73 +149,112 @@ module.exports = function (plop) {
         }
       },
       {
+        type: 'list',
+        name: 'moduleType',
+        message: 'Module type:',
+        choices: [
+          { name: 'Master Data (mst_)', value: 'mst' },
+          { name: 'Transaction (trx_)', value: 'trx' },
+          { name: 'Relation / Pivot (rel_)', value: 'rel' },
+          { name: 'Log / Audit (log_)', value: 'log' },
+        ],
+      },
+      {
         type: 'input',
         name: 'fields',
-        message: 'Fields (comma separated, format name:type:length, e.g. name:string:255,age:number):',
+        message: `
+Fields (comma separated, format name:type:length, e.g. name:string:255,age:number)
+Note: You can customize on spesific schema later.
+> `,
       },
+      {
+  type: 'confirm',
+  name: 'confirm',
+  message: (answers) => {
+    return `
+Preview:
+────────────────────────────
+Module Name   : ${answers.name}
+Module Type   : ${answers.moduleType}
+Table Name    : ${answers.moduleType}_${answers.name.endsWith('y')
+      ? answers.name.slice(0, -1) + 'ies'
+      : answers.name + 's'}
+Fields        : ${answers.fields || '-'}
+────────────────────────────
+Proceed to generate?
+`;
+  },
+  default: false,
+}
     ],
 
-    actions: [
-      // Parse fields (custom action)
-      { type: 'parseFields' },
-      { type: 'updateLogger' },
-      { type: 'updateModule' },
+    actions: (answers) => {
+      if (!answers.confirm) {
+        return [];
+      }
+      
+      return [
+        // Parse fields (custom action)
+        { type: 'parseFields' },
+        { type: 'updateLogger' },
+        { type: 'updateModule' },
 
-      // Controller
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'controllers', '{{name}}.controller.ts'),
-        templateFile: 'plop-templates/controller.hbs',
-      },
+        // Controller
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'controllers', '{{name}}.controller.ts'),
+          templateFile: 'plop-templates/controller.hbs',
+        },
 
-      // UseCase
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'usecases', '{{name}}.usecase.ts'),
-        templateFile: 'plop-templates/usecase.hbs',
-      },
+        // UseCase
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'usecases', '{{name}}.usecase.ts'),
+          templateFile: 'plop-templates/usecase.hbs',
+        },
 
-      // Repository
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'repositories', '{{name}}.repository.ts'),
-        templateFile: 'plop-templates/repository.hbs',
-      },
+        // Repository
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'repositories', '{{name}}.repository.ts'),
+          templateFile: 'plop-templates/repository.hbs',
+        },
 
-      // Types
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.types.ts'),
-        templateFile: 'plop-templates/types.hbs',
-      },
+        // Types
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.types.ts'),
+          templateFile: 'plop-templates/types.hbs',
+        },
 
-      // Entity
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.entity.ts'),
-        templateFile: 'plop-templates/entity.hbs',
-      },
+        // Entity
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.entity.ts'),
+          templateFile: 'plop-templates/entity.hbs',
+        },
 
-      // DTO
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.dto.ts'),
-        templateFile: 'plop-templates/dto.hbs',
-      },
+        // DTO
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', 'domains', '{{name}}.dto.ts'),
+          templateFile: 'plop-templates/dto.hbs',
+        },
 
-      // Module
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', '{{name}}.module.ts'),
-        templateFile: 'plop-templates/module.hbs',
-      },
+        // Module
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'modules', '{{version}}', '{{name}}', '{{name}}.module.ts'),
+          templateFile: 'plop-templates/module.hbs',
+        },
 
-      // Schema
-      {
-        type: 'add',
-        path: path.join(process.cwd(), 'src', 'core', 'db', 'schema', '{{name}}.schema.ts'),
-        templateFile: 'plop-templates/schema.hbs',
-      },
-    ],
+        // Schema
+        {
+          type: 'add',
+          path: path.join(process.cwd(), 'src', 'core', 'db', 'schema', '{{name}}.schema.ts'),
+          templateFile: 'plop-templates/schema.hbs',
+        },
+      ];
+    },
   });
 };

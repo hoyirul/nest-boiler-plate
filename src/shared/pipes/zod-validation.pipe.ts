@@ -30,7 +30,7 @@ export class ZodValidationPipe implements PipeTransform {
         const msg =
           issue.message.startsWith("Invalid input")
             ? getMessage(lang, "api.common.validation_failed")
-            : getMessage(lang, issue.message);
+            : getMessage(lang, issue.message) || issue.message;
 
         errors[field] = msg;
       });

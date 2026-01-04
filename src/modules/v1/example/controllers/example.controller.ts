@@ -49,6 +49,7 @@ export class ExampleController {
       create: permissions.includes(`create:${MODULE_NAME}`),
       update: permissions.includes(`update:${MODULE_NAME}`),
       delete: permissions.includes(`delete:${MODULE_NAME}`),
+      restore: permissions.includes(`restore:${MODULE_NAME}`),
     };
   }
 
@@ -202,6 +203,23 @@ export class ExampleController {
       module: MODULE.EXAMPLE,
       statusLabel: RESP_STATUS.OK,
       message: getMessage(lang, 'api.modules.example.deleted'),
+      httpCode: HTTP.OK,
+    });
+  }
+
+  @Post(':id/restore')
+  @Roles('superadmin', 'admin')
+  @Permissions(`restore:${MODULE_NAME}`)
+  @HttpCode(HTTP.OK)
+  async restore(@Param('id') id: string, @Lang() lang: string) {
+    await this.uc.restore(Number(id));
+
+    this.logger.info(`Controller.restore called.`, { id, lang });
+    
+    return ResponseTrait.success({
+      module: MODULE.EXAMPLE,
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.example.restored'),
       httpCode: HTTP.OK,
     });
   }

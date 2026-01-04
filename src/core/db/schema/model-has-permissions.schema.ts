@@ -7,7 +7,7 @@ import {
 import { permissions } from "@/core/db/schema/permission.schema";
 
 export const modelHasPermissions = pgTable(
-  "model_has_permissions",
+  "rel_model_has_permissions",
   {
     permission_id: bigint("permission_id", { mode: "number" })
       .notNull()

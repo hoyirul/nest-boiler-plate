@@ -10,8 +10,6 @@ import { REDIS_URL } from '@/core/config/redis';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  console.log(`App running on port ${REDIS_URL}`);
-
   // Security headers
   app.use(helmet());
 

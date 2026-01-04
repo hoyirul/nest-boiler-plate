@@ -3,7 +3,7 @@ import Redis from 'ioredis';
 import { REDIS_URL } from '@/core/config/redis';
 
 @Injectable()
-export class AuthSessionRedisRepository {
+export class RedisCache {
   private redis: Redis;
 
   constructor() {
@@ -19,6 +19,18 @@ export class AuthSessionRedisRepository {
   async createCacheRbac(userId: string, rbacData: string, ttlSeconds: number) {
     const key = `rbac:${userId}`;
     await this.redis.set(key, rbacData, 'EX', ttlSeconds);
+  }
+
+  async deleteCacheRbacByUserId(userId: string) {
+    const key = `rbac:${userId}`;
+    await this.redis.del(key);
+  }
+
+  async deleteCacheRbacAll() {
+    const keys = await this.redis.keys('rbac:*');
+    if (keys.length > 0) {
+      await this.redis.del(keys);
+    }
   }
 
   async findByJti(jti: string): Promise<{ token: string | null; rbac: string | null }> {

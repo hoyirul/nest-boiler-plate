@@ -5,16 +5,34 @@
 
 import { DefaultServer } from "@/core/db";
 import { {{name}}s } from "@/core/db/schema/{{name}}.schema";
-import { eq, count, sql } from "drizzle-orm";
-import { Update{{properCase name}}DTO } from "@/modules/v1/{{name}}/domains/{{name}}.types";
+import { eq, count, sql, and, isNull, isNotNull } from "drizzle-orm";
+import { Create{{properCase name}}DTO, Update{{properCase name}}DTO } from "@/modules/v1/{{name}}/domains/{{name}}.types";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class {{properCase name}}Repository {
-  private getExecutor(tx?: any) {
+  public getExecutor(tx?: any) {
     return tx || DefaultServer();
   }
 
-  async create(data: { name: string }) {
-    const db = await this.getExecutor();
+  async isExist(name: string, tx?: any) {
+    const db = await this.getExecutor(tx);
+    const result = await db
+      .select({ count: count() })
+      .from({{name}}s)
+      .where(
+        and(
+          isNull({{name}}s.deleted_at),
+          eq({{name}}s.name, name.toLowerCase()),
+        )
+      )
+      .limit(1);
+
+    return Number(result[0].count) > 0;
+  }
+
+  async create(data: Create{{properCase name}}DTO, tx?: any) {
+    const db = await this.getExecutor(tx);
     const result = await db.insert({{name}}s).values(data).returning();
     return result[0];
   }
@@ -30,7 +48,7 @@ export class {{properCase name}}Repository {
 
     if (filters) {
       for (const [key, value] of Object.entries(filters)) {
-        conditions.push(sql`${table}.${sql.identifier([key])} = ${value}`);
+        conditions.push(sql`${table}.${key} = ${value}`);
       }
     }
 
@@ -53,37 +71,66 @@ export class {{properCase name}}Repository {
     };
   }
 
-  async findById(id: number) {
+  async findById(id: number, withDeleted = false) {
     const db = await this.getExecutor();
     const result = await db
       .select()
       .from({{name}}s)
-      .where(eq({{name}}s.id, id))
+      .where(
+        and(
+          withDeleted ? sql`TRUE` : isNull({{name}}s.deleted_at),
+          eq({{name}}s.id, id),
+        )
+      )
       .limit(1);
 
     return result[0] ?? null;
   }
 
-  async update(id: number, data: Update{{properCase name}}DTO) {
-    const db = await this.getExecutor();
+  async update(id: number, data: Update{{properCase name}}DTO, tx?: any) {
+    const db = await this.getExecutor(tx);
     const result = await db
       .update({{name}}s)
       .set({
         ...data,
         updated_at: new Date(),
       })
-      .where(eq({{name}}s.id, id))
+      .where(
+        and(
+          isNull({{name}}s.deleted_at),
+          eq({{name}}s.id, id),
+        )
+      )
       .returning();
 
     return result[0] ?? null;
   }
 
-  async delete(id: number) {
-    const db = await this.getExecutor();
+  async delete(id: number, tx?: any) {
+    const db = await this.getExecutor(tx);
     return db
       .update({{name}}s)
       .set({ deleted_at: new Date() })
-      .where(eq({{name}}s.id, id))
+      .where(
+        and(
+          isNull({{name}}s.deleted_at),
+          eq({{name}}s.id, id),
+        )
+      )
+      .returning();
+  }
+
+  async restore(id: number, tx?: any) {
+    const db = await this.getExecutor(tx);
+    return db
+      .update({{name}}s)
+      .set({ deleted_at: null })
+      .where(
+        and(
+          eq({{name}}s.id, id),
+          isNotNull({{name}}s.deleted_at),
+        )
+      )
       .returning();
   }
 }

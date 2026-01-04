@@ -46,7 +46,7 @@ export class AppExceptionFilter implements ExceptionFilter {
           const translatedErrors: Record<string, string> = {};
           const errors = exception.errors as Record<string, string>;
           for (const field in errors) {
-            translatedErrors[field] = getMessage(lang, errors[field]);
+            translatedErrors[field] = getMessage(lang, errors[field]) || errors[field];
           }
 
           payload = ResponseTrait.error({

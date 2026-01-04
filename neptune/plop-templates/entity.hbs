@@ -3,7 +3,7 @@
  * src/modules/v1/{{name}}/domains/{{name}}.entity.ts
  */
 
-export class {{upper name}}Entity {
+export class {{pascal name}}Entity {
   id!: number;
   {{#each fieldsArray}}
   {{this.name}}!: {{this.tsType}};
@@ -12,7 +12,7 @@ export class {{upper name}}Entity {
   updated_at!: Date;
   deleted_at?: Date | null;
 
-  constructor(data: Partial<{{upper name}}Entity>) {
+  constructor(data: Partial<{{pascal name}}Entity>) {
     Object.assign(this, data);
   }
 }

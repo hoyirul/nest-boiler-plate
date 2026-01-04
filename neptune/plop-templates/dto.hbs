@@ -6,7 +6,7 @@
 import { Type } from 'class-transformer';
 import { IsOptional, IsNumber, IsString, IsObject } from 'class-validator';
 
-export class {{pascal name}}ListQueryDTO {
+export class ListQueryDTO {
   @IsOptional()
   @Type(() => Number)
   page: number = 1;

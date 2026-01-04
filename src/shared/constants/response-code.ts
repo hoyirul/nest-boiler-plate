@@ -3,10 +3,15 @@ export const MODULE = {
   GENERAL: "GE",
   AUTH: "AU",
   USER: "US",
+  ROLE: "RO",
+  PERMISSION: "PE",
   EXAMPLE: "EX",
   PRODUCT: "PR",
   CONNECTION: "CN",
   TEST: "TE",
+  DIVISION: "DI",
+  DEPARTMENT: "DE",
+  POSITION: "PO",
 } as const;
 
 // Response Type

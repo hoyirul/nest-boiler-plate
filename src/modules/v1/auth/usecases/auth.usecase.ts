@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { AuthRepository } from '@/modules/v1/auth/repositories/auth.repository';
-import { AuthSessionRedisRepository } from '@/modules/v1/auth/repositories/auth.redis.repository';
+import { RedisCache } from '@/shared/redis/cache.redis';
 import { LoginDTO } from '@/modules/v1/auth/domains/auth.types';
 import { AuthError } from '@/shared/utils/errors';
 import { createToken, verifyToken } from '@/shared/utils/jwt';
@@ -11,7 +11,7 @@ import { env } from '@/core/config/env';
 export class AuthUseCase {
   constructor(
     private readonly repo: AuthRepository,
-    private readonly sessionRepo: AuthSessionRedisRepository
+    private readonly redis: RedisCache
   ) {}
 
   async login(payload: LoginDTO) {
@@ -25,7 +25,16 @@ export class AuthUseCase {
     const { token, jti, exp } = await createToken({ id: String(user.id), email: user.email }, expiresInSec);
 
     const ttl = exp - Math.floor(Date.now() / 1000);
-    await this.sessionRepo.createSession(String(user.id), jti, ttl);
+    await this.redis.createSession(String(user.id), jti, ttl);
+
+    // rbac
+    const userRBAC = await this.repo.findByIdWithRbac(String(user.id));
+    const rbacData = JSON.stringify({
+      roles: userRBAC!.roles,
+      permissions: userRBAC!.permissions
+    });
+    // cache rbac just 15 minutes
+    await this.redis.createCacheRbac(String(user.id), rbacData, 900); // 15 minutes
 
     return {
       token_type: 'Bearer',
@@ -41,7 +50,7 @@ export class AuthUseCase {
 
   async me(token: string) {
     const payload = await verifyToken(token);
-    const { token: userId, rbac } = await this.sessionRepo.findByJti(payload.jti);
+    const { token: userId, rbac } = await this.redis.findByJti(payload.jti);
     if (!userId) throw AuthError('api.modules.auth.validation.token_not_found');
 
     // if redis not found
@@ -54,7 +63,7 @@ export class AuthUseCase {
         permissions: user.permissions
       });
 
-      await this.sessionRepo.createCacheRbac(String(user.id), rbacData, 3600); // 1 jam
+      await this.redis.createCacheRbac(String(user.id), rbacData, 3600); // 1 jam
 
       return {
         id: String(user.id),
@@ -74,6 +83,6 @@ export class AuthUseCase {
 
   async logout(token: string) {
     const payload = await verifyToken(token);
-    await this.sessionRepo.deleteSession(payload.jti);
+    await this.redis.deleteSession(payload.jti);
   }
 }

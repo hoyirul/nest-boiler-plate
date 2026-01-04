@@ -46,6 +46,7 @@ export class {{properCase name}}Controller {
       create: permissions.includes(`create:${MODULE_NAME}`),
       update: permissions.includes(`update:${MODULE_NAME}`),
       delete: permissions.includes(`delete:${MODULE_NAME}`),
+      restore: permissions.includes(`restore:${MODULE_NAME}`),
     };
   }
 
@@ -58,7 +59,7 @@ export class {{properCase name}}Controller {
   }
 
   @Get()
-  @Roles('superadmin', 'admin')
+  @Roles('superadmin')
   @Permissions(`view:${MODULE_NAME}`)
   @HttpCode(HTTP.OK)
   async list(
@@ -83,7 +84,7 @@ export class {{properCase name}}Controller {
   }
 
   @Post()
-  @Roles('superadmin', 'admin')
+  @Roles('superadmin')
   @Permissions(`create:${MODULE_NAME}`)
   @HttpCode(HTTP.CREATED)
   async create(
@@ -105,10 +106,10 @@ export class {{properCase name}}Controller {
   }
 
   @Get(':id')
-  @Roles('superadmin', 'admin')
+  @Roles('superadmin')
   @Permissions(`show:${MODULE_NAME}`)
   @HttpCode(HTTP.OK)
-  async detail(@Param('id') id: string, @Lang() lang: string) {
+  async detail(@Param('id') id: number, @Lang() lang: string) {
     const data = await this.uc.detail(Number(id));
 
     this.logger.info(`Controller.detail called.`, { data, id, lang });
@@ -123,11 +124,11 @@ export class {{properCase name}}Controller {
   }
 
   @Patch(':id')
-  @Roles('superadmin', 'admin')
+  @Roles('superadmin')
   @Permissions(`update:${MODULE_NAME}`)
   @HttpCode(HTTP.OK)
   async update(
-    @Param('id') id: string, 
+    @Param('id') id: number, 
     @Body(new ZodValidationPipe({{name}}Types.Update{{properCase name}}Schema)) 
     body: {{name}}Types.Update{{properCase name}}DTO, 
     @Lang() lang: string
@@ -146,10 +147,10 @@ export class {{properCase name}}Controller {
   }
 
   @Delete(':id')
-  @Roles('superadmin', 'admin')
+  @Roles('superadmin')
   @Permissions(`delete:${MODULE_NAME}`)
   @HttpCode(HTTP.OK)
-  async delete(@Param('id') id: string, @Lang() lang: string) {
+  async delete(@Param('id') id: number, @Lang() lang: string) {
     await this.uc.delete(Number(id));
 
     this.logger.info(`Controller.delete called.`, { id, lang });
@@ -158,6 +159,23 @@ export class {{properCase name}}Controller {
       module: MODULE.{{upper name}},
       statusLabel: RESP_STATUS.OK,
       message: getMessage(lang, 'api.modules.{{name}}.deleted'),
+      httpCode: HTTP.OK,
+    });
+  }
+
+  @Post(':id/restore')
+  @Roles('superadmin')
+  @Permissions(`restore:${MODULE_NAME}`)
+  @HttpCode(HTTP.OK)
+  async restore(@Param('id') id: number, @Lang() lang: string) {
+    await this.uc.restore(Number(id));
+    
+    this.logger.info(`Controller.restore called.`, { id, lang });
+
+    return ResponseTrait.success({
+      module: MODULE.{{upper name}},
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.{{name}}.restored'),
       httpCode: HTTP.OK,
     });
   }

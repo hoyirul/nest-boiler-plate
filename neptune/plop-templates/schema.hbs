@@ -3,12 +3,12 @@
  * src/core/db/schema/{{name}}.schema.ts
  */
 
-import { pgTable, serial, varchar, integer, boolean, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, bigserial, varchar, integer, boolean, timestamp } from "drizzle-orm/pg-core";
 
-export const {{plural name}} = pgTable("{{plural name}}", {
-  id: serial("id").primaryKey(),
+export const {{plural name}} = pgTable("{{tableNamePlural moduleType name}}", {
+  id: bigserial("id", { mode: "number" }).primaryKey(),
   {{#each fieldsArray}}
-  {{name}}: {{#if (eq type "string")}}varchar("{{name}}", { length: {{length}} }).notNull{{else if (eq type "number")}}integer("{{name}}").notNull{{else if (eq type "boolean")}}boolean("{{name}}").notNull{{/if}},
+  {{name}}: {{#if (eq type "string")}}varchar("{{name}}", { length: {{length}} }).notNull({{else if (eq type "number")}}integer("{{name}}").notNull{{else if (eq type "boolean")}}boolean("{{name}}").notNull{{/if}}),
   {{/each}}
   created_at: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),
   updated_at: timestamp("updated_at", { withTimezone: false }).defaultNow().notNull(),

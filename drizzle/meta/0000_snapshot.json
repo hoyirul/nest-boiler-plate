@@ -1,9 +1,163 @@
 {
-  "id": "0b7f2697-4279-473b-92ca-494487c27f02",
+  "id": "e5fbc071-ab73-4d8d-9d5a-08eb614cc7fb",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.mst_departments": {
+      "name": "mst_departments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "division_id": {
+          "name": "division_id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "mst_departments_division_id_mst_divisions_id_fk": {
+          "name": "mst_departments_division_id_mst_divisions_id_fk",
+          "tableFrom": "mst_departments",
+          "tableTo": "mst_divisions",
+          "columnsFrom": [
+            "division_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mst_departments_code_unique": {
+          "name": "mst_departments_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.mst_divisions": {
+      "name": "mst_divisions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "mst_divisions_code_unique": {
+          "name": "mst_divisions_code_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "code"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.examples": {
       "name": "examples",
       "schema": "",
@@ -56,8 +210,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.model_has_permissions": {
-      "name": "model_has_permissions",
+    "public.rel_model_has_permissions": {
+      "name": "rel_model_has_permissions",
       "schema": "",
       "columns": {
         "permission_id": {
@@ -81,10 +235,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "model_has_permissions_permission_id_permissions_id_fk": {
-          "name": "model_has_permissions_permission_id_permissions_id_fk",
-          "tableFrom": "model_has_permissions",
-          "tableTo": "permissions",
+        "rel_model_has_permissions_permission_id_mst_permissions_id_fk": {
+          "name": "rel_model_has_permissions_permission_id_mst_permissions_id_fk",
+          "tableFrom": "rel_model_has_permissions",
+          "tableTo": "mst_permissions",
           "columnsFrom": [
             "permission_id"
           ],
@@ -110,8 +264,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.model_has_roles": {
-      "name": "model_has_roles",
+    "public.rel_model_has_roles": {
+      "name": "rel_model_has_roles",
       "schema": "",
       "columns": {
         "role_id": {
@@ -135,10 +289,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "model_has_roles_role_id_roles_id_fk": {
-          "name": "model_has_roles_role_id_roles_id_fk",
-          "tableFrom": "model_has_roles",
-          "tableTo": "roles",
+        "rel_model_has_roles_role_id_mst_roles_id_fk": {
+          "name": "rel_model_has_roles_role_id_mst_roles_id_fk",
+          "tableFrom": "rel_model_has_roles",
+          "tableTo": "mst_roles",
           "columnsFrom": [
             "role_id"
           ],
@@ -164,8 +318,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.permissions": {
-      "name": "permissions",
+    "public.mst_permissions": {
+      "name": "mst_permissions",
       "schema": "",
       "columns": {
         "id": {
@@ -180,12 +334,12 @@
           "primaryKey": false,
           "notNull": true
         },
-        "guard_name": {
-          "name": "guard_name",
-          "type": "varchar(100)",
+        "description": {
+          "name": "description",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "default": "'web'"
+          "default": null
         },
         "created_at": {
           "name": "created_at",
@@ -217,8 +371,67 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.role_has_permissions": {
-      "name": "role_has_permissions",
+    "public.mst_positions": {
+      "name": "mst_positions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(10)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.rel_role_has_permissions": {
+      "name": "rel_role_has_permissions",
       "schema": "",
       "columns": {
         "role_id": {
@@ -236,10 +449,10 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "role_has_permissions_role_id_roles_id_fk": {
-          "name": "role_has_permissions_role_id_roles_id_fk",
-          "tableFrom": "role_has_permissions",
-          "tableTo": "roles",
+        "rel_role_has_permissions_role_id_mst_roles_id_fk": {
+          "name": "rel_role_has_permissions_role_id_mst_roles_id_fk",
+          "tableFrom": "rel_role_has_permissions",
+          "tableTo": "mst_roles",
           "columnsFrom": [
             "role_id"
           ],
@@ -249,10 +462,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "role_has_permissions_permission_id_permissions_id_fk": {
-          "name": "role_has_permissions_permission_id_permissions_id_fk",
-          "tableFrom": "role_has_permissions",
-          "tableTo": "permissions",
+        "rel_role_has_permissions_permission_id_mst_permissions_id_fk": {
+          "name": "rel_role_has_permissions_permission_id_mst_permissions_id_fk",
+          "tableFrom": "rel_role_has_permissions",
+          "tableTo": "mst_permissions",
           "columnsFrom": [
             "permission_id"
           ],
@@ -277,8 +490,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.roles": {
-      "name": "roles",
+    "public.mst_roles": {
+      "name": "mst_roles",
       "schema": "",
       "columns": {
         "id": {
@@ -298,13 +511,7 @@
           "type": "varchar(100)",
           "primaryKey": false,
           "notNull": false,
-          "default": "'web'"
-        },
-        "level": {
-          "name": "level",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
+          "default": "'api'"
         },
         "created_at": {
           "name": "created_at",
@@ -336,14 +543,32 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
-      "name": "users",
+    "public.mst_users": {
+      "name": "mst_users",
       "schema": "",
       "columns": {
         "id": {
           "name": "id",
           "type": "varchar(36)",
           "primaryKey": true,
+          "notNull": true
+        },
+        "division_id": {
+          "name": "division_id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "department_id": {
+          "name": "department_id",
+          "type": "bigserial",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position_id": {
+          "name": "position_id",
+          "type": "bigserial",
+          "primaryKey": false,
           "notNull": true
         },
         "name": {
@@ -388,11 +613,51 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "mst_users_division_id_mst_divisions_id_fk": {
+          "name": "mst_users_division_id_mst_divisions_id_fk",
+          "tableFrom": "mst_users",
+          "tableTo": "mst_divisions",
+          "columnsFrom": [
+            "division_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mst_users_department_id_mst_departments_id_fk": {
+          "name": "mst_users_department_id_mst_departments_id_fk",
+          "tableFrom": "mst_users",
+          "tableTo": "mst_departments",
+          "columnsFrom": [
+            "department_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "mst_users_position_id_mst_positions_id_fk": {
+          "name": "mst_users_position_id_mst_positions_id_fk",
+          "tableFrom": "mst_users",
+          "tableTo": "mst_positions",
+          "columnsFrom": [
+            "position_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "mst_users_email_unique": {
+          "name": "mst_users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"

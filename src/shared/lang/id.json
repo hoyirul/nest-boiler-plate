@@ -2,13 +2,18 @@
   "api": {
     "modules": {
       "user": {
-        "fetched_all": "Data pengguna berhasil diambil",
-        "fetched_one": "Data pengguna berhasil diambil",
+        "fetched": "Data pengguna berhasil diambil",
         "created": "Pengguna berhasil dibuat",
         "updated": "Pengguna berhasil diperbarui",
-        "deleted": "Pengguna berhasil dihapus",
+        "status_updated": "Status pengguna berhasil diperbarui",
+        "password_updated": "Password pengguna berhasil diperbarui",
+        "email_updated": "Email pengguna berhasil diperbarui",
         "not_found": "Pengguna tidak ditemukan",
+        "invalid_status": "Status pengguna tidak valid, harus salah satu dari: active, inactive, banned",
+        "invalid_name_or_email": "Nama atau email tidak valid",
         "unauthorized": "Anda tidak memiliki izin untuk mengakses sumber daya ini",
+        "already_exists": "Pengguna dengan email tersebut sudah ada",
+        "confirm_password_mismatch": "Konfirmasi password tidak sesuai dengan password",
         "validation": {
           "user": {
             "exists": "Pengguna sudah ada"
@@ -19,12 +24,36 @@
           },
           "email": {
             "required": "Email wajib diisi",
-            "invalid": "Format email tidak valid"
+            "invalid": "Format email tidak valid",
+            "max_length": "Email maksimal 255 karakter"
           },
-          "age": {
-            "required": "Usia wajib diisi",
-            "restriction": "Usia harus antara 18 hingga 100",
-            "numeric": "Usia harus berupa angka"
+          "password": {
+            "required": "Password wajib diisi",
+            "min_length": "Password minimal 8 karakter",
+            "max_length": "Password maksimal 255 karakter"
+          },
+          "new_password": {
+            "required": "Password baru wajib diisi",
+            "min_length": "Password baru minimal 8 karakter",
+            "max_length": "Password baru maksimal 255 karakter",
+            "same_as_current": "Password baru tidak boleh sama dengan password saat ini",
+            "invalid_format": "Password baru harus mengandung setidaknya satu huruf besar, satu huruf kecil, satu angka, dan satu karakter khusus",
+            "contains_space": "Password baru tidak boleh mengandung spasi"
+          },
+          "confirm_password": {
+            "required": "Konfirmasi password wajib diisi",
+            "min_length": "Konfirmasi password minimal 8 karakter",
+            "max_length": "Konfirmasi password maksimal 255 karakter",
+            "match": "Konfirmasi password tidak sesuai dengan password"
+          },
+          "current_password": {
+            "required": "Password saat ini wajib diisi",
+            "min_length": "Password saat ini minimal 8 karakter",
+            "max_length": "Password saat ini maksimal 255 karakter",
+            "incorrect": "Password saat ini salah"
+          },
+          "status": {
+            "invalid": "Status tidak valid, harus salah satu dari: active, inactive, banned"
           }
         }
       },
@@ -33,7 +62,9 @@
         "created": "Example berhasil dibuat",
         "updated": "Example berhasil diperbarui",
         "deleted": "Example berhasil dihapus",
+        "restored": "Example berhasil dipulihkan",
         "not_found": "Example tidak ditemukan",
+        "already_exists": "Example dengan nama tersebut sudah ada",
         "validation": {
           "example": {
             "exists": "Example sudah ada"
@@ -46,6 +77,142 @@
             "required": "Lampiran wajib diisi",
             "invalid_type": "Tipe lampiran tidak valid",
             "max_size": "Ukuran lampiran maksimal 2MB"
+          }
+        }
+      },
+      "division": {
+        "fetched": "Data divisi berhasil diambil",
+        "created": "Divisi berhasil dibuat",
+        "updated": "Divisi berhasil diperbarui",
+        "deleted": "Divisi berhasil dihapus",
+        "restored": "Divisi berhasil dipulihkan",
+        "not_found": "Divisi tidak ditemukan",
+        "already_exists": "Divisi dengan nama tersebut sudah ada",
+        "validation": {
+          "division": {
+            "exists": "Divisi sudah ada"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "description": {
+            "max_length": "Deskripsi maksimal 255 karakter"
+          }
+        }
+      },
+      "department": {
+        "fetched": "Data departemen berhasil diambil",
+        "created": "Departemen berhasil dibuat",
+        "updated": "Departemen berhasil diperbarui",
+        "deleted": "Departemen berhasil dihapus",
+        "restored": "Departemen berhasil dipulihkan",
+        "not_found": "Departemen tidak ditemukan",
+        "already_exists": "Departemen dengan nama tersebut sudah ada",
+        "validation": {
+          "department": {
+            "exists": "Departemen sudah ada"
+          },
+          "division_id": {
+            "required": "ID divisi wajib diisi"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "description": {
+            "max_length": "Deskripsi maksimal 255 karakter"
+          }
+        }
+      },
+      "position": {
+        "fetched": "Data posisi berhasil diambil",
+        "created": "Posisi berhasil dibuat",
+        "updated": "Posisi berhasil diperbarui",
+        "deleted": "Posisi berhasil dihapus",
+        "restored": "Posisi berhasil dipulihkan",
+        "not_found": "Posisi tidak ditemukan",
+        "already_exists": "Posisi dengan nama tersebut sudah ada",
+        "validation": {
+          "position": {
+            "exists": "Posisi sudah ada"
+          },
+          "division_id": {
+            "required": "ID divisi wajib diisi"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "description": {
+            "max_length": "Deskripsi maksimal 255 karakter"
+          }
+        }
+      },
+      "role": {
+        "fetched": "Data role berhasil diambil",
+        "created": "Role berhasil dibuat",
+        "updated": "Role berhasil diperbarui",
+        "deleted": "Role berhasil dihapus",
+        "restored": "Role berhasil dipulihkan",
+        "assigned": "Role berhasil diberikan ke pengguna",
+        "revoked": "Role berhasil dicabut dari pengguna",
+        "not_found": "Role tidak ditemukan",
+        "already_exists": "Role dengan nama tersebut sudah ada",
+        "already_assigned": "Role sudah diberikan ke pengguna",
+        "validation": {
+          "role": {
+            "exists": "Role sudah ada"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "guard_name": {
+            "required": "Guard name wajib diisi",
+            "max_length": "Guard name maksimal 100 karakter"
+          },
+          "assign": {
+            "model_id": {
+              "required": "Model ID wajib diisi",
+              "max_length": "Model ID maksimal 100 karakter"
+            },
+            "role_id": {
+              "required": "Role ID wajib diisi",
+              "numeric": "Role ID harus berupa angka"
+            }
+          }
+        }
+      },
+      "permission": {
+        "fetched": "Data permission berhasil diambil",
+        "created": "Permission berhasil dibuat",
+        "updated": "Permission berhasil diperbarui",
+        "deleted": "Permission berhasil dihapus",
+        "restored": "Permission berhasil dipulihkan",
+        "assigned": "Permission berhasil diberikan ke role",
+        "revoked": "Permission berhasil dicabut dari role",
+        "not_found": "Permission tidak ditemukan",
+        "already_exists": "Permission dengan nama tersebut sudah ada",
+        "permission_role": "Permission sudah diberikan ke role",
+        "permission_user": "Permission sudah diberikan ke pengguna",
+        "validation": {
+          "permission": {
+            "exists": "Permission sudah ada"
+          },
+          "name": {
+            "required": "Nama wajib diisi",
+            "max_length": "Nama maksimal 100 karakter"
+          },
+          "assign": {
+            "role_id": {
+              "required": "Role ID wajib diisi",
+              "numeric": "Role ID harus berupa angka"
+            },
+            "permission_id": {
+              "required": "Permission ID wajib diisi",
+              "numeric": "Permission ID harus berupa angka"
+            }
           }
         }
       },
@@ -75,6 +242,7 @@
       "invalid_file_type": "Tipe file tidak valid",
       "file_too_large": "Ukuran file terlalu besar",
       "validation_failed": "Validasi gagal",
+      "user_not_set_in_auth_provider": "Pengguna tidak disetel dalam penyedia otentikasi",
       "too_many_requests": "Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti"
     }
   }

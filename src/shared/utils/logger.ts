@@ -83,9 +83,14 @@ class Logger {
 
 export const Loggers = {
   user: new Logger("USER"),
+  role: new Logger("ROLE"),
+  permission: new Logger("PERMISSION"),
   test: new Logger("TEST"),
   example: new Logger("EXAMPLE"),
   product: new Logger("PRODUCT"),
   auth: new Logger("AUTH"),
   general: new Logger("GENERAL"),
+  division: new Logger("DIVISION"),
+  department: new Logger("DEPARTMENT"),
+  position: new Logger("POSITION"),
 };
