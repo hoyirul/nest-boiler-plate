@@ -7,6 +7,7 @@ import { DefaultServer } from "@/core/db";
 import { {{name}}s } from "@/core/db/schema/{{name}}.schema";
 import { eq, count, sql, and, isNull, isNotNull } from "drizzle-orm";
 import { Create{{properCase name}}DTO, Update{{properCase name}}DTO } from "@/modules/v1/{{name}}/domains/{{name}}.types";
+import { {{properCase name}}Entity } from "@/modules/v1/{{name}}/domains/{{name}}.entity";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -15,7 +16,7 @@ export class {{properCase name}}Repository {
     return tx || DefaultServer();
   }
 
-  async isExist(name: string, tx?: any) {
+  async isExist(data: Create{{properCase name}}DTO | Update{{properCase name}}DTO, tx?: any) {
     const db = await this.getExecutor(tx);
     const result = await db
       .select({ count: count() })
@@ -23,7 +24,7 @@ export class {{properCase name}}Repository {
       .where(
         and(
           isNull({{name}}s.deleted_at),
-          eq({{name}}s.name, name.toLowerCase()),
+          // Add your unique fields check here
         )
       )
       .limit(1);
@@ -52,7 +53,7 @@ export class {{properCase name}}Repository {
       }
     }
 
-    const data = await db
+    const rows = await db
       .select()
       .from(table)
       .where(sql.join(conditions, ' AND '))
@@ -65,6 +66,7 @@ export class {{properCase name}}Repository {
       .from(table)
       .where(sql.join(conditions, ' AND '));
 
+    const data = {{properCase name}}Entity.fromRows(rows);
     return {
       data,
       total: Number(totalResult[0].value),
@@ -83,7 +85,7 @@ export class {{properCase name}}Repository {
         )
       )
       .limit(1);
-
+    
     return result[0] ?? null;
   }
 

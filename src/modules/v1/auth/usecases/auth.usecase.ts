@@ -18,6 +18,9 @@ export class AuthUseCase {
     const user = await this.repo.findByEmail(payload.email);
     if (!user) throw AuthError('api.modules.auth.validation.invalid_credentials');
 
+    const banned = user.status === 'banned';
+    if (banned) throw AuthError('api.modules.auth.validation.user_banned');
+
     const valid = await bcrypt.compare(payload.password, user.password);
     if (!valid) throw AuthError('api.modules.auth.validation.invalid_credentials');
 

@@ -1,102 +1,198 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Nest Boiler Plate
+> A boilerplate project for building scalable and maintainable server-side applications using NestJS framework.
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Pre-Requisites
+Before running this project, make sure you have the following installed:
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- Node.js v18 or higher
+  Required to run the NestJS application.
+- npm v8 or higher
+  Used as the package manager.
+- Database
+  One of the supported databases:
+  - PostgreSQL (recommended)
+  - MySQL
+  - SQLite
+  Used together with Drizzle ORM.
+  NestJS CLI (optional)
+  Helpful for development and code generation.
+  `npm install -g @nestjs/cli`
+- Redis (optional)
+  Required only if caching, queues, or session management is enabled.
+- Plop (optional)
+  Used for code generation with Neptune CLI.
+  `npm install -g plop`
 
-## Description
+## Technologies Used
+- [NestJS](https://nestjs.com/)
+- [Drizzle ORM](https://drizzle.team/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [PostgreSQL/MySQL/SQLite](https://www.postgresql.org/, https://www.mysql.com/, https://www.sqlite.org/)
+- [Redis](https://redis.io/) (optional)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Project setup
-
-```bash
-$ npm install
+## Project Structure
+```
+src
+├── core
+│   ├── config          # Global configuration
+│   └── db
+│       ├── schema      # Database schemas (Drizzle)
+│       ├── check.db.ts # DB connection checker
+│       ├── seed.db.ts  # Seeder database
+│       ├── db-registry.ts
+│       └── index.ts
+│
+├── modules
+│   └── v1
+│       ├── auth
+│       ├── department
+│       ├── division
+│       ├── example
+│       │   ├── controllers
+│       │   ├── domains
+│       │   │   ├── example.dto.ts
+│       │   │   ├── example.entity.ts
+│       │   │   └── example.types.ts
+│       │   ├── repositories
+│       │   ├── usecases
+│       │   │   └── example.usecase.ts
+│       │   └── example.module.ts
+│       ├── permission
+│       ├── position
+│       ├── role
+│       └── user
+│
+└── shared               # Shared utilities/helpers
+    ├── constants
+    ├── decorators
+    ├── exceptions
+    ├── filters
+    ├── guards
+    ├── interceptors
+    └── utils
 ```
 
-## Compile and run the project
+## Instalation
+1. Clone the repository:
+   ```bash
+    git clone <repository_url>
+    cd nest-boiler-plate
+    cp .env.example .env
+    npm run neptune:generate # Generate APP KEY and JWT_SECRET
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up environment variables:
+   Create a `.env` file in the root directory and configure the necessary environment variables as per your setup.
+4. Run database migrations:
+   ```bash 
+   npm run db:migrate # Make sure to have your database running and configured in the .env file
+   npm run db:seed # (optional) Seed the database with initial data
+   ```
+5. Start the development server:
+   ```bash
+   npm run start:dev
+   ```
 
-```bash
-# development
-$ npm run start
+## Usage
+- The server will be running at `http://localhost:3000` by default.
+- You can access the API endpoints as defined in the modules.
 
-# watch mode
-$ npm run start:dev
+## Additional Scripts
+- `npm run storage:link`: Create symbolic link for storage folder.
+- `npm run db:seed`: Seed the database with initial data.
+- `npm run db:check`: Check the database connection.
+- `npm run db:generate`: Generate Drizzle schema.
+- `npm run db:pull`: Pull database schema changes.
+- `npm run db:push`: Push database schema changes.
+- `npm run neptune:generate`: Generate application keys and secrets.
+- `npm run neptune:module`: Generate a new module using Neptune CLI.
 
-# production mode
-$ npm run start:prod
-```
+## Neptune
+> Neptune is a CLI tool to help you generate boilerplate code for your NestJS application.
 
-## Run tests
+- Make some module using Neptune:
+  ```bash
+    npm run neptune:module
 
-```bash
-# unit tests
-$ npm run test
+    API version: v1
+    Module name: example
+    Module type (types: mst_, trx_, rel_, log_): mst_
+    Fields (format: name:type:isNullable:isUnique) [id:uuid:false:true]: name:string:100, attachment:string:255
+    Do you want to generate CRUD API? (y/n): y
+  ```
+- This will generate a new module named `example` with the specified fields and CRUD API endpoints.
+- Schema will generate on `src/core/db/schema/example.schema.ts`.
+- Module will generate on `src/modules/v1/example/`.
+- Repository, Entity, DTO, and Usecase files will be created automatically.
+- Before hit the endpoints, make sure to run the migrations to create the necessary tables in the database.
+- Migrate the database:
+  ```bash
+    npm run db:generate
+    npm run db:pull
+    npm run db:push
+  ```
+  Table will create based on the schema file.
+- Then you shuld be registry the module on `src/modules/v1/v1.module.ts`.
+  ``typescript
+  import { ExampleModule } from '@/modules/v1/example/example.module';
 
-# e2e tests
-$ npm run test:e2e
+  @Module({
+    imports: [
+      ExampleModule,
+      ...
+    ],
+  })
+  export class V1Module {}
+  ```
+- Last, you should be add the lang on `src/shared/lang/id.json` or `src/shared/lang/en.json`.
+  ```json
+  {
+    "api": {
+      "modules": {
+        "example": {
+          "fetched": "Data example berhasil diambil",
+          "created": "Example berhasil dibuat",
+          "updated": "Example berhasil diperbarui",
+          "deleted": "Example berhasil dihapus",
+          "restored": "Example berhasil dipulihkan",
+          "not_found": "Example tidak ditemukan",
+          "already_exists": "Example dengan nama tersebut sudah ada",
+          "validation": {
+            "example": {
+              "exists": "Example sudah ada"
+            },
+            "name": {
+              "required": "Nama wajib diisi",
+              "max_length": "Nama maksimal 100 karakter"
+            },
+            "attachment": {
+              "required": "Lampiran wajib diisi",
+              "invalid_type": "Tipe lampiran tidak valid",
+              "max_size": "Ukuran lampiran maksimal 2MB"
+            }
+          }
+        }
+      }
+    }
+  }
+  ```
+- Now you can access the CRUD API endpoints for the `example` module.
+  GET `/api/v1/examples`
+  POST `/api/v1/examples`
+  GET `/api/v1/examples/:id`
+  PATCH `/api/v1/examples/:id`
+  DELETE `/api/v1/examples/:id`
+  POST `/api/v1/examples/:id/restore`
 
-# test coverage
-$ npm run test:cov
-```
+  With Bearer token authentication if enabled.
+  And add headers `Accept-Language: id` or `en` for localization.
 
-## Deployment
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## Contributing
+Contributions are welcome! Please open an issue or submit a pull request for any improvements or bug fixes.
 
 ## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-### 
-- RBAC Guard (menyimpan access ke redis)
-- Approval Line
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

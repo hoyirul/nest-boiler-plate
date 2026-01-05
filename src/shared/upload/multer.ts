@@ -21,7 +21,7 @@ export function multerOptions(
     },
     storage: diskStorage({
       destination: (_req, _file, cb) => {
-        cb(null, dirPath);
+        cb(null, dirPath); // destination folder: storage/app/MODULE_NAME
       },
       filename: (_req, file, cb) => {
         const filename = generateFileName(MODULE_NAME, file.originalname);

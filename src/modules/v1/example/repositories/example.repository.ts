@@ -3,7 +3,7 @@ import { examples } from "@/core/db/schema/example.schema";
 import { eq, count, sql, and, isNull } from "drizzle-orm";
 import { CreateExampleDTO, UpdateExampleDTO } from "@/modules/v1/example/domains/example.types";
 import { Injectable } from "@nestjs/common";
-import { ExampleEntity } from "../domains/example.entity";
+import { ExampleEntity } from "@/modules/v1/example/domains/example.entity";
 
 @Injectable()
 export class ExampleRepository {
@@ -98,7 +98,7 @@ export class ExampleRepository {
       )
       .limit(1);
 
-    return result[0] ?? null;
+    return result[0] ? new ExampleEntity(result[0]) : null;
   }
 
   async update(id: number, data: UpdateExampleDTO, tx?: any) {

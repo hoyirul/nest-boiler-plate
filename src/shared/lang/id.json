@@ -226,7 +226,8 @@
           "token_not_found": "Token tidak ditemukan",
           "invalid_token": "Token tidak valid",
           "invalid_jwt_secret": "Token JWT tidak valid",
-          "expired_token": "Token telah kedaluwarsa"
+          "expired_token": "Token telah kedaluwarsa",
+          "user_banned": "Pengguna telah diblokir, silahkan hubungi administrator"
         }
       }
     },

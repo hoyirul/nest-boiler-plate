@@ -120,7 +120,7 @@ export class ExampleController {
     @Lang() lang: string
   ) {
     const filePath = attachment
-    ? join(env.UPLOAD_DIR, MODULE_NAME, attachment.filename)
+    ? join(MODULE_NAME, attachment.filename)
     : undefined;
     const data = await this.uc.create({
       ...body,
@@ -176,7 +176,7 @@ export class ExampleController {
 
     const data = await this.uc.update(Number(id), {
       ...body,
-      attachment: filePath,
+      attachment: filePath ?? undefined,
     });
 
     this.logger.info(`Controller.update called.`, { data, id, body, lang });

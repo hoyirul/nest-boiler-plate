@@ -3,16 +3,27 @@
  * src/modules/v1/{{name}}/domains/{{name}}.entity.ts
  */
 
+import { formatDate } from "@/shared/utils/parse";
 export class {{pascal name}}Entity {
   id!: number;
   {{#each fieldsArray}}
   {{this.name}}!: {{this.tsType}};
   {{/each}}
-  created_at!: Date;
-  updated_at!: Date;
-  deleted_at?: Date | null;
+  created_at!: string;
+  updated_at!: string;
+  deleted_at?: string | null;
 
   constructor(data: Partial<{{pascal name}}Entity>) {
-    Object.assign(this, data);
+    this.id = data.id!;
+    {{#each fieldsArray}}
+    this.{{this.name}} = data.{{this.name}}!;
+    {{/each}}
+    this.created_at = formatDate(data.created_at, 'datetime') ?? '';
+    this.updated_at = formatDate(data.updated_at, 'datetime') ?? '';
+    this.deleted_at = formatDate(data.deleted_at, 'datetime') ?? null;
+  }
+
+  static fromRows(rows: Partial<{{pascal name}}Entity>[]): {{pascal name}}Entity[] {
+    return rows.map(r => new {{pascal name}}Entity(r));
   }
 }

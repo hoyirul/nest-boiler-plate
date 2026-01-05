@@ -17,7 +17,7 @@ export class {{properCase name}}UseCase {
     const db = await this.repo.getExecutor();
 
     await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.create>> => {
-      const isExist = await this.repo.isExist(payload.name);
+      const isExist = await this.repo.isExist(payload, tx);
       if (isExist) {
         throw ValidationError("api.common.validation_failed", {
           name: "api.modules.{{name}}.already_exists",

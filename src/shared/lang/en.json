@@ -2,29 +2,249 @@
   "api": {
     "modules": {
       "user": {
-        "fetched_all": "User data fetched successfully",
-        "fetched_one": "User data fetched successfully",
-        "created": "User created successfully",
-        "updated": "User updated successfully",
-        "deleted": "User deleted successfully",
+        "fetched": "User data successfully retrieved",
+        "created": "User successfully created",
+        "updated": "User successfully updated",
+        "status_updated": "User status successfully updated",
+        "password_updated": "User password successfully updated",
+        "email_updated": "User email successfully updated",
         "not_found": "User not found",
-        "unauthorized": "You do not have permission to access this resource"
+        "invalid_status": "Invalid user status, must be one of: active, inactive, banned",
+        "invalid_name_or_email": "Invalid name or email",
+        "unauthorized": "You do not have permission to access this resource",
+        "already_exists": "User with that email already exists",
+        "confirm_password_mismatch": "Password confirmation does not match the password",
+        "validation": {
+          "user": {
+            "exists": "User already exists"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "email": {
+            "required": "Email is required",
+            "invalid": "Invalid email format",
+            "max_length": "Email must be at most 255 characters"
+          },
+          "password": {
+            "required": "Password is required",
+            "min_length": "Password must be at least 8 characters",
+            "max_length": "Password must be at most 255 characters"
+          },
+          "new_password": {
+            "required": "New password is required",
+            "min_length": "New password must be at least 8 characters",
+            "max_length": "New password must be at most 255 characters",
+            "same_as_current": "New password must not be the same as the current password",
+            "invalid_format": "New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character",
+            "contains_space": "New password must not contain spaces"
+          },
+          "confirm_password": {
+            "required": "Password confirmation is required",
+            "min_length": "Password confirmation must be at least 8 characters",
+            "max_length": "Password confirmation must be at most 255 characters",
+            "match": "Password confirmation does not match the password"
+          },
+          "current_password": {
+            "required": "Current password is required",
+            "min_length": "Current password must be at least 8 characters",
+            "max_length": "Current password must be at most 255 characters",
+            "incorrect": "Current password is incorrect"
+          },
+          "status": {
+            "invalid": "Invalid status, must be one of: active, inactive, banned"
+          }
+        }
+      },
+      "example": {
+        "fetched": "Example data successfully retrieved",
+        "created": "Example successfully created",
+        "updated": "Example successfully updated",
+        "deleted": "Example successfully deleted",
+        "restored": "Example successfully restored",
+        "not_found": "Example not found",
+        "already_exists": "Example with that name already exists",
+        "validation": {
+          "example": {
+            "exists": "Example already exists"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "attachment": {
+            "required": "Attachment is required",
+            "invalid_type": "Invalid attachment type",
+            "max_size": "Attachment size must be at most 2MB"
+          }
+        }
+      },
+      "division": {
+        "fetched": "Division data successfully retrieved",
+        "created": "Division successfully created",
+        "updated": "Division successfully updated",
+        "deleted": "Division successfully deleted",
+        "restored": "Division successfully restored",
+        "not_found": "Division not found",
+        "already_exists": "Division with that name already exists",
+        "validation": {
+          "division": {
+            "exists": "Division already exists"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "description": {
+            "max_length": "Description must be at most 255 characters"
+          }
+        }
+      },
+      "department": {
+        "fetched": "Department data successfully retrieved",
+        "created": "Department successfully created",
+        "updated": "Department successfully updated",
+        "deleted": "Department successfully deleted",
+        "restored": "Department successfully restored",
+        "not_found": "Department not found",
+        "already_exists": "Department with that name already exists",
+        "validation": {
+          "department": {
+            "exists": "Department already exists"
+          },
+          "division_id": {
+            "required": "Division ID is required"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "description": {
+            "max_length": "Description must be at most 255 characters"
+          }
+        }
+      },
+      "position": {
+        "fetched": "Position data successfully retrieved",
+        "created": "Position successfully created",
+        "updated": "Position successfully updated",
+        "deleted": "Position successfully deleted",
+        "restored": "Position successfully restored",
+        "not_found": "Position not found",
+        "already_exists": "Position with that name already exists",
+        "validation": {
+          "position": {
+            "exists": "Position already exists"
+          },
+          "division_id": {
+            "required": "Division ID is required"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "description": {
+            "max_length": "Description must be at most 255 characters"
+          }
+        }
+      },
+      "role": {
+        "fetched": "Role data successfully retrieved",
+        "created": "Role successfully created",
+        "updated": "Role successfully updated",
+        "deleted": "Role successfully deleted",
+        "restored": "Role successfully restored",
+        "assigned": "Role successfully assigned to user",
+        "revoked": "Role successfully revoked from user",
+        "not_found": "Role not found",
+        "already_exists": "Role with that name already exists",
+        "already_assigned": "Role already assigned to user",
+        "validation": {
+          "role": {
+            "exists": "Role already exists"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "guard_name": {
+            "required": "Guard name is required",
+            "max_length": "Guard name must be at most 100 characters"
+          },
+          "assign": {
+            "model_id": {
+              "required": "Model ID is required",
+              "max_length": "Model ID must be at most 100 characters"
+            },
+            "role_id": {
+              "required": "Role ID is required",
+              "numeric": "Role ID must be a number"
+            }
+          }
+        }
+      },
+      "permission": {
+        "fetched": "Permission data successfully retrieved",
+        "created": "Permission successfully created",
+        "updated": "Permission successfully updated",
+        "deleted": "Permission successfully deleted",
+        "restored": "Permission successfully restored",
+        "assigned": "Permission successfully assigned to role",
+        "revoked": "Permission successfully revoked from role",
+        "not_found": "Permission not found",
+        "already_exists": "Permission with that name already exists",
+        "permission_role": "Permission already assigned to role",
+        "permission_user": "Permission already assigned to user",
+        "validation": {
+          "permission": {
+            "exists": "Permission already exists"
+          },
+          "name": {
+            "required": "Name is required",
+            "max_length": "Name must be at most 100 characters"
+          },
+          "assign": {
+            "role_id": {
+              "required": "Role ID is required",
+              "numeric": "Role ID must be a number"
+            },
+            "permission_id": {
+              "required": "Permission ID is required",
+              "numeric": "Permission ID must be a number"
+            }
+          }
+        }
       },
       "auth": {
-        "login_success": "Login successful",
-        "invalid_credential": "Email or password is incorrect",
-        "logout_success": "Logout successful",
-        "token_expired": "Token expired",
-        "token_invalid": "Token is invalid",
-        "register_success": "Registration successful"
+        "logged_in": "Login successful",
+        "logged_out": "Logout successful",
+        "fetched_me": "User data successfully retrieved",
+        "validation": {
+          "user_not_found": "User not found",
+          "invalid_credentials": "Invalid credentials",
+          "token_not_found": "Token not found",
+          "invalid_token": "Invalid token",
+          "invalid_jwt_secret": "Invalid JWT token",
+          "expired_token": "Token has expired",
+          "user_banned": "User has been banned, please contact the administrator"
+        }
       }
     },
     "common": {
-      "server_error": "Server error occurred",
-      "bad_request": "Bad request",
-      "forbidden": "Access denied",
+      "server_error": "An error occurred on the server",
+      "server_not_found": "Resource not found",
+      "unauthorized": "You do not have permission to access this resource",
+      "bad_request": "Invalid request",
+      "forbidden": "You do not have access rights to this resource",
       "not_found": "Data not found",
-      "invalid_id": "Invalid ID"
+      "invalid_id": "Invalid ID",
+      "missing_parameters": "Required parameters are missing",
+      "invalid_file_type": "Invalid file type",
+      "file_too_large": "File size is too large",
+      "validation_failed": "Validation failed",
+      "user_not_set_in_auth_provider": "User is not set in the authentication provider",
+      "too_many_requests": "Too many requests from this IP, please try again later"
     }
   }
 }
