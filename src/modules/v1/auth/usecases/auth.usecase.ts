@@ -24,7 +24,7 @@ export class AuthUseCase {
     const valid = await bcrypt.compare(payload.password, user.password);
     if (!valid) throw AuthError('api.modules.auth.validation.invalid_credentials');
 
-    const expiresInSec = parseInt(env.JWT_EXPIRES_IN) || 86400;
+    const expiresInSec = parseInt(env.JWT_EXPIRES_IN) || 86400; // default 1 day
     const { token, jti, exp } = await createToken({ id: String(user.id), email: user.email }, expiresInSec);
 
     const ttl = exp - Math.floor(Date.now() / 1000);
@@ -41,7 +41,7 @@ export class AuthUseCase {
 
     return {
       token_type: 'Bearer',
-      access_token: token,
+      access_token: "******************", // hide actual token
       expires_in: ttl,
       user: {
         id: user.id,

@@ -6,9 +6,13 @@ import { AppExceptionFilter } from '@/shared/filters/app-exception.filter';
 import helmet from 'helmet';
 import { corsOrigins, env } from '@/core/config/env';
 import { REDIS_URL } from '@/core/config/redis';
+import cookieParser from 'cookie-parser'
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // cookie
+  app.use(cookieParser());
 
   // Security headers
   app.use(helmet());

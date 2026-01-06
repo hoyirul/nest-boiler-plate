@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, HttpCode } from '@nestjs/common';
+import { Controller, Post, Get, Body, UseGuards, HttpCode, Res } from '@nestjs/common';
 import * as authTypes from '@/modules/v1/auth/domains/auth.types';
 import { ZodValidationPipe } from '@/shared/pipes/zod-validation.pipe';
 import { ResponseTrait } from '@/shared/traits/response.trait';
@@ -10,6 +10,8 @@ import { AuthGuard } from '@/shared/guards/auth.guard';
 import { Token, CurrentUser } from '@/shared/decorators/auth.decorator';
 import { HTTP } from '@/shared/constants/http-status';
 import { Loggers } from "@/shared/utils/logger";
+import type { Response } from 'express';
+import { env } from '@/core/config/env';
 
 @Controller('v1/auth')
 export class AuthController {
@@ -19,9 +21,20 @@ export class AuthController {
   @HttpCode(HTTP.OK)
   async login(
     @Body(new ZodValidationPipe(authTypes.LoginSchema)) body: authTypes.LoginDTO,
-    @Lang() lang: string
+    @Lang() lang: string,
+    @Res({ passthrough: true }) res: Response
   ) {
     const data = await this.uc.login(body);
+
+    res.cookie('access_token', data.access_token, {
+      httpOnly: true,
+      secure: env.APP_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: data.expires_in * 1000, // in milliseconds
+    });
+
+    delete (data as any).access_token;
+
     // log for res and req
     Loggers.auth.info(`Controller.login called.`, { data, body, lang });
     return ResponseTrait.success({
@@ -51,8 +64,19 @@ export class AuthController {
   @UseGuards(AuthGuard)
   @Post('logout')
   @HttpCode(HTTP.OK)
-  async logout(@Token() token: string, @Lang() lang: string) {
+  async logout(
+    @Token() token: string, 
+    @Lang() lang: string,
+    @Res({ passthrough: true }) res: Response
+  ) {
     await this.uc.logout(token);
+
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: env.APP_ENV === 'production',
+      sameSite: 'lax',
+    });
+
     Loggers.auth.info(`Controller.logout called.`, { token, lang });
     return ResponseTrait.success({
       module: MODULE.AUTH,
