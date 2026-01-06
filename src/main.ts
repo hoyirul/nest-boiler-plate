@@ -11,13 +11,20 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   // Security headers
-  app.use(helmet());
+  app.use(helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false,
+  }));
 
   // CORS
   app.enableCors({
     origin: corsOrigins,
-    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization',
+      'Accept-Language',
+    ],
     credentials: true,
   });
 
@@ -27,7 +34,9 @@ async function bootstrap() {
   app.useGlobalFilters(new AppExceptionFilter());
 
   app.setGlobalPrefix('api');
-
+  
+  // server listen
+  console.log(`Starting server on port ${env.APP_HOST}:${env.APP_PORT ?? 3000}...`);
   await app.listen(env.APP_PORT ?? 3000);
 }
 bootstrap();

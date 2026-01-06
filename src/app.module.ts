@@ -19,6 +19,11 @@ import { V1Module } from '@/modules/v1/v1.module';
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'public', 'storage'),
       serveRoot: '/storage',
+      serveStaticOptions: {
+        setHeaders: (res) => {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+        },
+      },
     }),
   ],
   controllers: [],

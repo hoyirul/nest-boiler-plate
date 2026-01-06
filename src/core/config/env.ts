@@ -36,7 +36,7 @@ const envSchema = z.object({
 
   // Upload
   UPLOAD_DRIVER: z.enum(["local", "s3"]).default("local"),
-  UPLOAD_DIR: z.string().default("storage/public/uploads"),
+  UPLOAD_DIR: z.string().default("storage/app"),
   UPLOAD_MAX_SIZE: z.number().default(2_000_000),
   UPLOAD_ALLOWED_MIME: z.string().default("image/png,application/pdf,image/jpeg,image/jpg,application/xlsx,application/xls"),
 
