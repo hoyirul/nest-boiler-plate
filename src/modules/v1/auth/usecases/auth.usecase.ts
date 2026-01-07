@@ -41,7 +41,7 @@ export class AuthUseCase {
 
     return {
       token_type: 'Bearer',
-      access_token: "******************", // hide actual token
+      access_token: token,
       expires_in: ttl,
       user: {
         id: user.id,

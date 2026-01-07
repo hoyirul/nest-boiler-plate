@@ -221,6 +221,16 @@
         "logged_out": "Logout successful",
         "fetched_me": "User data successfully retrieved",
         "validation": {
+          "email": {
+            "required": "Email is required",
+            "invalid": "Invalid email format",
+            "max_length": "Email must be at most 255 characters"
+          },
+          "password": {
+            "required": "Password is required",
+            "min_length": "Password must be at least 8 characters",
+            "max_length": "Password must be at most 255 characters"
+          },
           "user_not_found": "User not found",
           "invalid_credentials": "Invalid credentials",
           "token_not_found": "Token not found",

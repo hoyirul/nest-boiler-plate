@@ -221,6 +221,16 @@
         "logged_out": "Logout berhasil",
         "fetched_me": "Data pengguna berhasil diambil",
         "validation": {
+          "email": {
+            "required": "Email wajib diisi",
+            "invalid": "Format email tidak valid",
+            "max_length": "Email maksimal 255 karakter"
+          },
+          "password": {
+            "required": "Password wajib diisi",
+            "min_length": "Password minimal 8 karakter",
+            "max_length": "Password maksimal 255 karakter"
+          },
           "user_not_found": "Pengguna tidak ditemukan",
           "invalid_credentials": "Kredensial tidak valid",
           "token_not_found": "Token tidak ditemukan",

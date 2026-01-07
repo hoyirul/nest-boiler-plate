@@ -5,7 +5,7 @@ import { ResponseTrait } from '@/shared/traits/response.trait';
 import { MODULE, RESP_STATUS } from '@/shared/constants/response-code';
 import { getMessage } from '@/shared/lang';
 import { Lang } from '@/shared/decorators/lang.decorator';
-import { AuthUseCase } from '../usecases/auth.usecase';
+import { AuthUseCase } from '@/modules/v1/auth/usecases/auth.usecase';
 import { AuthGuard } from '@/shared/guards/auth.guard';
 import { Token, CurrentUser } from '@/shared/decorators/auth.decorator';
 import { HTTP } from '@/shared/constants/http-status';
@@ -28,8 +28,8 @@ export class AuthController {
 
     res.cookie('access_token', data.access_token, {
       httpOnly: true,
-      secure: env.APP_ENV === 'production',
-      sameSite: 'lax',
+      secure: env.APP_ENV === 'production' ? true : false,
+      sameSite: env.APP_ENV === 'production' ? 'none' : 'lax',
       maxAge: data.expires_in * 1000, // in milliseconds
     });
 
@@ -73,8 +73,8 @@ export class AuthController {
 
     res.clearCookie('access_token', {
       httpOnly: true,
-      secure: env.APP_ENV === 'production',
-      sameSite: 'lax',
+      secure: env.APP_ENV === 'production' ? true : false,
+      sameSite: env.APP_ENV === 'production' ? 'none' : 'lax',
     });
 
     Loggers.auth.info(`Controller.logout called.`, { token, lang });
