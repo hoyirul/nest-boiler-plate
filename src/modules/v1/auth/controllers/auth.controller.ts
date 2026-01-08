@@ -27,13 +27,14 @@ export class AuthController {
     const data = await this.uc.login(body);
 
     res.cookie('access_token', data.access_token, {
-      httpOnly: true,
+      httpOnly: env.APP_ENV === 'production' ? true : false,
       secure: env.APP_ENV === 'production' ? true : false,
       sameSite: env.APP_ENV === 'production' ? 'none' : 'lax',
       maxAge: data.expires_in * 1000, // in milliseconds
+      path: '/',
     });
 
-    delete (data as any).access_token;
+    env.APP_ENV == 'production' && delete (data as any).access_token;
 
     // log for res and req
     Loggers.auth.info(`Controller.login called.`, { data, body, lang });
@@ -72,9 +73,10 @@ export class AuthController {
     await this.uc.logout(token);
 
     res.clearCookie('access_token', {
-      httpOnly: true,
+      httpOnly: env.APP_ENV === 'production' ? true : false,
       secure: env.APP_ENV === 'production' ? true : false,
       sameSite: env.APP_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
     });
 
     Loggers.auth.info(`Controller.logout called.`, { token, lang });
