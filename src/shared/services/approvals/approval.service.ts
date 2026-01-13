@@ -1,4 +1,4 @@
-// src/shared/approval/approval.helper.ts
+// src/shared/approval/approval.service.ts
 
 import {
   ApprovalLine,
@@ -9,7 +9,8 @@ import {
   mapLogsByApprovalId,
   findCurrentLine,
 } from './approval.utils';
-
+import { ApprovalStepState } from './approval.types';
+import { ACTION_RULES } from './approval.constants';
 export class ApprovalService {
   static resolve(params: {
     approvalLines: ApprovalLine[];
@@ -24,7 +25,7 @@ export class ApprovalService {
     return {
       current_step: currentLine?.step ?? null,
       current_approval_id: currentLine?.id ?? null,
-      next_status: currentLine?.status ?? null,
+      next_action: currentLine?.action ?? null,
 
       can_approve:
         !!currentLine &&
@@ -32,18 +33,22 @@ export class ApprovalService {
 
       lines: approvalLines.map(line => {
         const log = logMap.get(line.id);
+        const isCurrent = line.id === currentLine?.id;
+        const state: ApprovalStepState = log ? 'DONE' : isCurrent ? 'CURRENT' : 'WAITING';
+
+        // allowed actions berdasarkan next_action.code
+        const allowed_actions = isCurrent && line.action
+          ? ACTION_RULES[line.action.code.toLowerCase()] ?? []
+          : [];
 
         return {
           step: line.step,
           approver_id: line.approver_id,
           approver: line.approver,
-          state: log
-            ? 'DONE'
-            : line.id === currentLine?.id
-              ? 'CURRENT'
-              : 'WAITING',
+          state,
           approved_at: log?.created_at ?? null,
-          next_status: line.status ?? null,
+          next_action: line.action ?? null,
+          allowed_actions: allowed_actions,
         };
       }),
     };

@@ -9,7 +9,7 @@ export const CreateApprovalSchema = z.object({
   model_type: z.string().min(1, "api.modules.approval.validation.model_type.required"),
   approver_id: z.string().min(1, "api.modules.approval.validation.approver_id.required"),
   step: z.number().min(1, "api.modules.approval.validation.step.required"),
-  status_id: z.number().min(1, "api.modules.approval.validation.status.required"),
+  action_id: z.number().min(1, "api.modules.approval.validation.action.required"),
   remarks: z.string().nullable().default(null),
 });
 
@@ -17,7 +17,7 @@ export const UpdateApprovalSchema = z.object({
   model_type: z.string().optional(),
   approver_id: z.string().optional(),
   step: z.number().optional(),
-  status_id: z.number().optional(),
+  action_id: z.number().optional(),
   remarks: z.string().optional(),
 });
 

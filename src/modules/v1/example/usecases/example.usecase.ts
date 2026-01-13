@@ -55,14 +55,11 @@ export class ExampleUseCase {
     const approvalLines = await this.approvalRepo.findByModelType('examples');
     const approvalLogs = await this.approvalLogRepo.findByModel('examples', id.toString());
 
-    let approvalState: ReturnType<typeof ApprovalService.resolve> | null = null;
-    if (this.getUserId()) {
-      approvalState = ApprovalService.resolve({
-        approvalLines,
-        approvalLogs,
-        currentUserId: this.getUserId(),
-      });
-    }
+    const approvalState = ApprovalService.resolve({
+      approvalLines,
+      approvalLogs,
+      currentUserId: this.getUserId()
+    });
 
     return {
       ...example,
@@ -140,16 +137,21 @@ export class ExampleUseCase {
         });
       }
 
-      await this.repo.changeStatus(id, statusId, tx);
+      const nextStatus = await this.repo.getNextStatusByAction(
+        result.status.code,
+        newStatus.code,
+      );
+
+      await this.repo.changeStatus(id, nextStatus.id, tx);
 
       return {
         name: result.name,
-        status: newStatus.label,
+        status: nextStatus.label,
       };
     });
   }
 
-  async approvalLine(id: number) {
+  async approvalLine(id: number, action: string) {
     const db = await this.repo.getExecutor();
 
     return db.transaction(async (tx: unknown) => {
@@ -165,9 +167,36 @@ export class ExampleUseCase {
         currentUserId: this.getUserId(),
       });
 
+      // validations
+      if (!state.current_approval_id || state.current_step === null) {
+        throw ValidationError("api.common.validation_failed", {
+          approval: "api.common.no_current_approval_line",
+        });
+      }
+
       if (!state.can_approve) {
         throw ValidationError("api.common.validation_failed", {
-          approval: "api.modules.example.not_allowed_to_approve",
+          approval: "api.common.not_allowed_to_approve",
+        });
+      }
+
+      const nextStatus = await this.repo.getNextStatusByAction(
+        example.status!.code,
+        action,
+      );
+
+
+      if (!nextStatus) {
+        throw ValidationError("api.common.validation_failed", {
+          approval: "api.modules.example.invalid_approval_action",
+        });
+      }
+
+      const actionRecord = await this.approvalLogRepo.findActionByCode(action, tx);
+
+      if (!actionRecord) {
+        throw ValidationError("api.common.validation_failed", {
+          approval: "api.modules.example.invalid_action",
         });
       }
 
@@ -176,14 +205,16 @@ export class ExampleUseCase {
         model_type: 'examples',
         model_id: id.toString(),
         status_from: example.status?.id!,
-        status_to: state.next_status!.id,
+        status_to: nextStatus.id,
+        action_id: actionRecord.id,
         changed_by: this.getUserId(),
+        note: `${action} by ${this.getUserId()}`,
       }, tx);
 
-      await this.repo.changeStatus(id, state.next_status!.id, tx);
+      await this.repo.changeStatus(id, nextStatus.id, tx);
       return {
         name: example.name,
-        status: state.next_status!.label,
+        status: nextStatus.label,
         current_step: state.current_step,
       };
     });

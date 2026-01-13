@@ -15,6 +15,7 @@ export const MODULE = {
   FEATURE: "FE",
   APPROVAL: "AP",
   STATUS: "ST",
+  ACTION: "AC",
 } as const;
 
 // Response Type

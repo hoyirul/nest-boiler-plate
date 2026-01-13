@@ -1,4 +1,14 @@
-CREATE TYPE "public"."status" AS ENUM('active', 'inactive', 'banned');--> statement-breakpoint
+--CREATE TYPE "public"."status" AS ENUM('active', 'inactive', 'banned');--> statement-breakpoint
+CREATE TABLE "mst_actions" (
+	"id" bigserial PRIMARY KEY NOT NULL,
+	"code" varchar(20) NOT NULL,
+	"label" varchar(50) NOT NULL,
+	"sort_order" integer NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"deleted_at" timestamp DEFAULT null
+);
+--> statement-breakpoint
 CREATE TABLE "trx_approval_logs" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"approval_id" bigint NOT NULL,
@@ -6,7 +16,9 @@ CREATE TABLE "trx_approval_logs" (
 	"model_id" varchar(36) NOT NULL,
 	"status_from" bigint NOT NULL,
 	"status_to" bigint NOT NULL,
+	"action_id" bigint,
 	"changed_by" varchar(36) NOT NULL,
+	"note" varchar(255) DEFAULT null,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
@@ -16,8 +28,8 @@ CREATE TABLE "trx_approvals" (
 	"model_type" varchar(100) NOT NULL,
 	"approver_id" varchar(36) NOT NULL,
 	"step" integer NOT NULL,
-	"status_id" bigint NOT NULL,
-	"reason" varchar(255) NOT NULL,
+	"action_id" bigint NOT NULL,
+	"remarks" varchar(255) DEFAULT null,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"deleted_at" timestamp DEFAULT null
@@ -150,7 +162,8 @@ CREATE TABLE "mst_users" (
 ALTER TABLE "trx_approval_logs" ADD CONSTRAINT "trx_approval_logs_approval_id_trx_approvals_id_fk" FOREIGN KEY ("approval_id") REFERENCES "public"."trx_approvals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trx_approval_logs" ADD CONSTRAINT "trx_approval_logs_status_from_mst_statuses_id_fk" FOREIGN KEY ("status_from") REFERENCES "public"."mst_statuses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "trx_approval_logs" ADD CONSTRAINT "trx_approval_logs_status_to_mst_statuses_id_fk" FOREIGN KEY ("status_to") REFERENCES "public"."mst_statuses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "trx_approvals" ADD CONSTRAINT "trx_approvals_status_id_mst_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."mst_statuses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "trx_approval_logs" ADD CONSTRAINT "trx_approval_logs_action_id_mst_actions_id_fk" FOREIGN KEY ("action_id") REFERENCES "public"."mst_actions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "trx_approvals" ADD CONSTRAINT "trx_approvals_action_id_mst_actions_id_fk" FOREIGN KEY ("action_id") REFERENCES "public"."mst_actions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "mst_departments" ADD CONSTRAINT "mst_departments_division_id_mst_divisions_id_fk" FOREIGN KEY ("division_id") REFERENCES "public"."mst_divisions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "examples" ADD CONSTRAINT "examples_status_id_mst_statuses_id_fk" FOREIGN KEY ("status_id") REFERENCES "public"."mst_statuses"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rel_feature_permissions" ADD CONSTRAINT "rel_feature_permissions_feature_id_mst_features_id_fk" FOREIGN KEY ("feature_id") REFERENCES "public"."mst_features"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

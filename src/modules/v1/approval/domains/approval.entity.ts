@@ -4,13 +4,13 @@
  */
 
 import { formatDate } from "@/shared/utils/parse";
-class ApprovalStatus {
+class ApprovalAction {
   id!: number;
   code!: string;
   label!: string;
   sort_order!: number;
 
-  constructor(data: Partial<ApprovalStatus>) {
+  constructor(data: Partial<ApprovalAction>) {
     this.id = data.id!;
     this.code = data.code!;
     this.label = data.label!;
@@ -23,7 +23,7 @@ export class ApprovalEntity {
   model_type!: string;
   approver_id!: string;
   step!: number;
-  status!: ApprovalStatus | null;
+  action!: ApprovalAction | null;
   remarks!: string | null;
   created_at!: string;
   updated_at!: string;
@@ -34,7 +34,7 @@ export class ApprovalEntity {
     this.model_type = data.model_type!;
     this.approver_id = data.approver_id!;
     this.step = data.step!;
-    this.status = data.status ? new ApprovalStatus(data.status) : null;
+    this.action = data.action ? new ApprovalAction(data.action) : null;
     this.remarks = data.remarks!;
     this.created_at = formatDate(data.created_at, 'datetime') ?? '';
     this.updated_at = formatDate(data.updated_at, 'datetime') ?? '';

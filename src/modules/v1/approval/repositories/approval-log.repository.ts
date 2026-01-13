@@ -7,6 +7,7 @@ import { DefaultServer } from "@/core/db";
 import { eq, and } from "drizzle-orm";
 import { Injectable } from "@nestjs/common";
 import { approvalLogs } from "@/core/db/schema/approval-log.schema";
+import { actions } from "@/core/db/schema/action.schema";
 
 @Injectable()
 export class ApprovalLogRepository {
@@ -14,9 +15,34 @@ export class ApprovalLogRepository {
     return tx || DefaultServer();
   }
 
-  async create(data: any, tx?: any) {
+  async findActionByCode(code: string, tx?: any) {
     const db = await this.getExecutor(tx);
-    const result = await db.insert(approvalLogs).values(data).returning();
+
+    const result = await db
+      .select()
+      .from(actions)
+      .where(
+        eq(actions.code, code)
+      )
+      .limit(1);
+
+    return result[0];
+  }
+
+  async create(data: any,tx?: any) {
+    const db = await this.getExecutor(tx);
+
+    const result = await db.insert(approvalLogs).values({
+      approval_id: Number(data.approval_id),
+      model_type: data.model_type,
+      model_id: data.model_id,
+      status_from: Number(data.status_from),
+      status_to: Number(data.status_to),
+      action_id: Number(data.action_id),
+      changed_by: data.changed_by,
+      note: data.note ?? null,
+    }).returning();
+    
     return result[0];
   }
 
@@ -32,6 +58,7 @@ export class ApprovalLogRepository {
         id: approvalLogs.id,
         approval_id: approvalLogs.approval_id,
         status_from: approvalLogs.status_from,
+        action_id: approvalLogs.action_id,
         status_to: approvalLogs.status_to,
         created_at: approvalLogs.created_at,
       })

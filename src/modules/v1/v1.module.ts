@@ -9,6 +9,7 @@ import { DepartmentModule } from '@/modules/v1/department/department.module';
 import { PositionModule } from '@/modules/v1/position/position.module';
 import { ApprovalModule } from '@/modules/v1/approval/approval.module';
 import { StatusModule } from '@/modules/v1/status/status.module';
+import { ActionModule } from '@/modules/v1/action/action.module';
 import { FeatureModule } from '@/modules/v1/feature/feature.module';
 import { ExampleModule } from '@/modules/v1/example/example.module';
 
@@ -23,6 +24,7 @@ import { ExampleModule } from '@/modules/v1/example/example.module';
     PositionModule,
     ApprovalModule,
     StatusModule,
+    ActionModule,
     FeatureModule,
     ExampleModule,
   ],

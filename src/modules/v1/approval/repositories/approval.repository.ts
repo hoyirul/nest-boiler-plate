@@ -14,6 +14,7 @@ import { eq, count, sql, and, isNull, isNotNull } from "drizzle-orm";
 import { CreateApprovalDTO, UpdateApprovalDTO } from "@/modules/v1/approval/domains/approval.types";
 import { ApprovalEntity } from "@/modules/v1/approval/domains/approval.entity";
 import { Injectable } from "@nestjs/common";
+import { actions } from "@/core/db/schema/action.schema";
 
 @Injectable()
 export class ApprovalRepository {
@@ -76,7 +77,7 @@ export class ApprovalRepository {
         deleted_at: table.deleted_at,
       })
       .from(table)
-      .innerJoin(statuses, eq(table.status_id, statuses.id))
+      .innerJoin(statuses, eq(table.action_id, statuses.id))
       .where(sql.join(conditions, ' AND '))
       .limit(limit)
       .offset(offset)
@@ -114,7 +115,7 @@ export class ApprovalRepository {
         deleted_at: approvals.deleted_at,
       })
       .from(approvals)
-      .innerJoin(statuses, eq(approvals.status_id, statuses.id))
+      .innerJoin(statuses, eq(approvals.action_id, statuses.id))
       .where(
         and(
           withDeleted ? sql`TRUE` : isNull(approvals.deleted_at),
@@ -199,11 +200,11 @@ export class ApprovalRepository {
           },
         },
 
-        status_id: statuses.id,
-        status: {
-          id: statuses.id,
-          code: statuses.code,
-          label: statuses.label
+        action_id: actions.id,
+        action: {
+          id: actions.id,
+          code: actions.code,
+          label: actions.label
         },
       })
       .from(approvals)
@@ -211,7 +212,7 @@ export class ApprovalRepository {
       .innerJoin(divisions, eq(divisions.id, users.division_id))
       .innerJoin(departments, eq(departments.id, users.department_id))
       .innerJoin(positions, eq(positions.id, users.position_id))
-      .innerJoin(statuses, eq(statuses.id, approvals.status_id))
+      .innerJoin(actions, eq(actions.id, approvals.action_id))
       .where(eq(approvals.model_type, modelType))
       .orderBy(approvals.step);
   }

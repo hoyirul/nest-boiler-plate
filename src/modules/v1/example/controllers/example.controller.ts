@@ -238,10 +238,11 @@ export class ExampleController {
   @Permissions(`approve:${MODULE_NAME}`)
   @HttpCode(HTTP.OK)
   async approvalLine(
-    @Param('id') id: string, 
+    @Param('id') id: string,
+    @Body('action') action: string, 
     @Lang() lang: string) {
       
-    const data = await this.uc.approvalLine(Number(id));
+    const data = await this.uc.approvalLine(Number(id), action);
 
     this.logger.info(`Controller.approvalLine called.`, { data, id, lang });
 

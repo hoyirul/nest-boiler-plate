@@ -6,6 +6,7 @@
 import { pgTable, bigserial, varchar, bigint, timestamp } from "drizzle-orm/pg-core";
 import { statuses } from "./status.schema";
 import { approvals } from "./approval.schema";
+import { actions } from "./action.schema";
 
 export const approvalLogs = pgTable("trx_approval_logs", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
@@ -14,7 +15,7 @@ export const approvalLogs = pgTable("trx_approval_logs", {
   model_id: varchar("model_id", { length: 36 }).notNull(),
   status_from: bigint("status_from", { mode: "number" }).notNull().references(() => statuses.id, { onDelete: "cascade" }),
   status_to: bigint("status_to", { mode: "number" }).notNull().references(() => statuses.id, { onDelete: "cascade" }),
-  action: bigint("action", { mode: "number" }).notNull().references(() => statuses.id, { onDelete: "cascade" }),
+  action_id: bigint("action_id", { mode: "number" }).references(() => actions.id, { onDelete: "set null" }),
   changed_by: varchar("changed_by", { length: 36 }).notNull(),
   note: varchar("note", { length: 255 }).default(null as unknown as string),
   created_at: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),

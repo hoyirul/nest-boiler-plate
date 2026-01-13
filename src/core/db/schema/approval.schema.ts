@@ -4,14 +4,14 @@
  */
 
 import { pgTable, bigserial, varchar, integer, bigint, timestamp } from "drizzle-orm/pg-core";
-import { statuses } from "./status.schema";
+import { actions } from "./action.schema";
 
 export const approvals = pgTable("trx_approvals", {
   id: bigserial("id", { mode: "number" }).primaryKey(),
   model_type: varchar("model_type", { length: 100 }).notNull(),
   approver_id: varchar("approver_id", { length: 36 }).notNull(),
   step: integer("step").notNull(),
-  status_id: bigint("status_id", { mode: "number" }).notNull().references(() => statuses.id, { onDelete: "cascade" }),
+  action_id: bigint("action_id", { mode: "number" }).notNull().references(() => actions.id, { onDelete: "cascade" }),
   remarks: varchar("remarks", { length: 255 }).default(null as unknown as string),
   created_at: timestamp("created_at", { withTimezone: false }).defaultNow().notNull(),
   updated_at: timestamp("updated_at", { withTimezone: false }).defaultNow().notNull(),

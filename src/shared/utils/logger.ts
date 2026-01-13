@@ -96,4 +96,5 @@ export const Loggers = {
   feature: new Logger("FEATURE"),
   approval: new Logger("APPROVAL"),
   status: new Logger("STATUS"),
+  action: new Logger("ACTION"),
 };

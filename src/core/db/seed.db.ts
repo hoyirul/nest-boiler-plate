@@ -16,6 +16,7 @@ import { sql } from "drizzle-orm";
 // import { modelHasPermissions } from "@/core/db/schema/model-has-permissions.schema";
 import bcrypt from "bcryptjs";
 import { v4 as uuidv4 } from "uuid";
+import { actions } from "./schema/action.schema";
 
 async function seed() {
   const db = DefaultServer();
@@ -36,6 +37,17 @@ async function seed() {
         .returning({ id: statuses.id, code: statuses.code });
       
       const draftStatus = insertedStatuses.find(s => s.code === "draft")!;
+
+      console.log("Seeding Actions...");
+      const insertedActions = await tx
+        .insert(actions)
+        .values([
+          { code: "submit", label: "Submit", sort_order: 1 },
+          { code: "approve", label: "Approve", sort_order: 2 },
+          { code: "reject", label: "Reject", sort_order: 3 },
+          { code: "cancel", label: "Cancel", sort_order: 4 },
+        ])
+        .returning({ id: actions.id, code: actions.code });
 
       console.log("Seeding Examples...");
       // with foreach 10 data bulk insert
@@ -414,7 +426,14 @@ async function seed() {
           model_type: "examples",
           approver_id: superadminID,
           step: 1,
-          status_id: insertedStatuses.find(s => s.code === "draft")!.id,
+          action_id: insertedActions.find(a => a.code === "submit")!.id,
+          remarks: null,
+        },
+        {
+          model_type: "examples",
+          approver_id: superadminID,
+          step: 2,
+          action_id: insertedActions.find(a => a.code === "approve")!.id,
           remarks: null,
         },
       ]);

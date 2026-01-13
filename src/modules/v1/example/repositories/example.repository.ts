@@ -7,6 +7,8 @@ import { Injectable } from "@nestjs/common";
 import { ExampleEntity } from "@/modules/v1/example/domains/example.entity";
 import { AuthProvider } from "@/shared/providers/auth.provider";
 import { statuses } from "@/core/db/schema/status.schema";
+import { actions } from "@/core/db/schema/action.schema";
+import { TRANSITIONS } from "@/shared/services/approvals/approval.constants";
 
 @Injectable()
 export class ExampleRepository {
@@ -172,6 +174,7 @@ export class ExampleRepository {
   // Approval and logging related methods can be added here
   async changeStatus(id: number, statusId: number, tx?: any) {
     const db = await this.getExecutor(tx);
+    
     const result = await db
       .update(examples)
       .set({
@@ -228,5 +231,21 @@ export class ExampleRepository {
       currentStatus: currentStatus[0],
       newStatus: newStatus[0],
     }
+  }
+
+  async getNextStatusByAction(currentStatusCode: string, actionCode: string) {
+    const transition = TRANSITIONS.find(t => t.fromStatus === currentStatusCode && t.action === actionCode);
+    if (!transition) return null;
+
+    // ambil status_id dari DB
+    const db = await this.getExecutor();
+    const status = await db.select({
+      id: statuses.id,
+      code: statuses.code,
+      label: statuses.label,
+      sort_order: statuses.sort_order,
+    }).from(statuses).where(eq(statuses.code, transition.toStatus));
+
+    return status[0];
   }
 }

@@ -1,9 +1,67 @@
 {
-  "id": "09664681-3231-4fc8-997e-fabe3d879b2c",
+  "id": "94f9f8ab-2ee1-4592-9758-4ab1c567d025",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
+    "public.mst_actions": {
+      "name": "mst_actions",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "bigserial",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "code": {
+          "name": "code",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.trx_approval_logs": {
       "name": "trx_approval_logs",
       "schema": "",
@@ -44,11 +102,24 @@
           "primaryKey": false,
           "notNull": true
         },
+        "action_id": {
+          "name": "action_id",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
         "changed_by": {
           "name": "changed_by",
           "type": "varchar(36)",
           "primaryKey": false,
           "notNull": true
+        },
+        "note": {
+          "name": "note",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": null
         },
         "created_at": {
           "name": "created_at",
@@ -105,6 +176,19 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "trx_approval_logs_action_id_mst_actions_id_fk": {
+          "name": "trx_approval_logs_action_id_mst_actions_id_fk",
+          "tableFrom": "trx_approval_logs",
+          "tableTo": "mst_actions",
+          "columnsFrom": [
+            "action_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "set null",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -141,17 +225,18 @@
           "primaryKey": false,
           "notNull": true
         },
-        "status_id": {
-          "name": "status_id",
+        "action_id": {
+          "name": "action_id",
           "type": "bigint",
           "primaryKey": false,
           "notNull": true
         },
-        "reason": {
-          "name": "reason",
+        "remarks": {
+          "name": "remarks",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false,
+          "default": null
         },
         "created_at": {
           "name": "created_at",
@@ -177,12 +262,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "trx_approvals_status_id_mst_statuses_id_fk": {
-          "name": "trx_approvals_status_id_mst_statuses_id_fk",
+        "trx_approvals_action_id_mst_actions_id_fk": {
+          "name": "trx_approvals_action_id_mst_actions_id_fk",
           "tableFrom": "trx_approvals",
-          "tableTo": "mst_statuses",
+          "tableTo": "mst_actions",
           "columnsFrom": [
-            "status_id"
+            "action_id"
           ],
           "columnsTo": [
             "id"
