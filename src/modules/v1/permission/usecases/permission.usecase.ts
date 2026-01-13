@@ -6,7 +6,9 @@ import {
   AssignPermissionRoleDTO, 
   RevokePermissionRoleDTO,
   AssignPermissionUserDTO,
-  RevokePermissionUserDTO
+  RevokePermissionUserDTO,
+  AssignPermissionFeatureDTO,
+  RevokePermissionFeatureDTO
 } from "@/modules/v1/permission/domains/permission.types";
 import { NotFoundError, ValidationError } from "@/shared/utils/errors";
 import { buildPaginationMeta } from "@/shared/utils/pagination";
@@ -204,6 +206,59 @@ export class PermissionUseCase {
       await this.redis.deleteCacheRbacByUserId(String(user.id));
 
       return await this.repo.revokePermissionFromUser(data, tx);
+    });
+  }
+
+  async assignPermissionToFeature(data: AssignPermissionFeatureDTO) {
+    const db = await this.repo.getExecutor();
+
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.assignPermissionToFeature>> => {
+      const permission = await this.repo.findById(data.permission_id);
+      if (!permission) {
+        throw NotFoundError("api.modules.permission.not_found");
+      }
+
+      const feature = await this.repo.findFeatureById(data.feature_id);
+      if (!feature) {
+        throw NotFoundError("api.modules.feature.not_found");
+      }
+
+      const isExist: boolean = await this.repo.isExistPermissionFeature(data);
+      if (isExist) {
+        throw ValidationError("api.common.validation_failed", {
+          feature: "api.modules.permission.permission_feature",
+        });
+      }
+
+      await this.redis.deleteCacheRbacByUserId(String(feature.id));
+
+      return await this.repo.assignPermissionToFeature(data, tx);
+    });
+  }
+
+  async revokePermissionFromFeature(data: RevokePermissionFeatureDTO) {
+    const db = await this.repo.getExecutor();
+
+    await db.transaction(async (tx: unknown): Promise<ReturnType<typeof this.repo.revokePermissionFromFeature>> => {
+      const permission = await this.repo.findById(data.permission_id);
+      if (!permission) {
+        throw NotFoundError("api.modules.permission.not_found");
+      }
+
+      const feature = await this.repo.findFeatureById(data.feature_id);
+      if (!feature) {
+        throw NotFoundError("api.modules.feature.not_found");
+      }
+      
+      const isExist: boolean = await this.repo.isExistPermissionFeature(data);
+      if (!isExist) {
+        throw NotFoundError("api.common.not_found");
+      }
+
+      // req user.id
+      await this.redis.deleteCacheRbacByUserId(String(feature.id));
+
+      return await this.repo.revokePermissionFromFeature(data, tx);
     });
   }
 }

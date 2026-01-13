@@ -21,31 +21,43 @@ import { MODULE, RESP_STATUS } from "@/shared/constants/response-code";
 import { getMessage } from "@/shared/lang";
 import { Lang } from "@/shared/decorators/lang.decorator";
 import { HTTP } from "@/shared/constants/http-status";
-import { AuthGuard } from "@/shared/guards/auth.guard"; 
-import { RolesGuard } from '@/shared/guards/role.guard';
-import { PermissionsGuard } from '@/shared/guards/permission.guard';
+import { AuthGuard } from "@/shared/guards/auth.guard";
 import { Roles, Permissions } from '@/shared/decorators/rbac.decorator';
 import { Loggers } from "@/shared/utils/logger";
+import { RbacGuard } from "@/shared/guards/rbac.guard";
 
 const MODULE_NAME = 'permission';
-@UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
+@UseGuards(AuthGuard, RbacGuard)
 @Controller('v1/permissions')
 export class PermissionController {
   private readonly logger = Loggers.permission;
   constructor(private readonly uc: PermissionUseCase) {}
-  private buildAccess(permissions: string[] = []) {
-    return {
-      view: permissions.includes(`view:${MODULE_NAME}`),
-      show: permissions.includes(`show:${MODULE_NAME}`),
-      create: permissions.includes(`create:${MODULE_NAME}`),
-      update: permissions.includes(`update:${MODULE_NAME}`),
-      delete: permissions.includes(`delete:${MODULE_NAME}`),
-      restore: permissions.includes(`restore:${MODULE_NAME}`),
-      apr: permissions.includes(`assign:${MODULE_NAME}:role`), // Assign Permission to Role
-      rpr: permissions.includes(`revoke:${MODULE_NAME}:role`), // Revoke Permission from Role
-      apu: permissions.includes(`assign:${MODULE_NAME}:user`), // Assign Permission to User
-      rpu: permissions.includes(`revoke:${MODULE_NAME}:user`), // Revoke Permission from User
-    };
+
+  private buildAccess(roles: string[] = [], permissions: string[] = []) {
+    const isSuperAdmin = roles.includes('superadmin');
+
+    const permissionMap = {
+      view: `view:${MODULE_NAME}`,
+      show: `show:${MODULE_NAME}`,
+      create: `create:${MODULE_NAME}`,
+      update: `update:${MODULE_NAME}`,
+      delete: `delete:${MODULE_NAME}`,
+      restore: `restore:${MODULE_NAME}`,
+      
+      apr: `assign:${MODULE_NAME}:role`,
+      rpr: `revoke:${MODULE_NAME}:role`,
+      apu: `assign:${MODULE_NAME}:user`,
+      rpu: `revoke:${MODULE_NAME}:user`,
+      apf: `assign:${MODULE_NAME}:feature`,
+      rpf: `revoke:${MODULE_NAME}:feature`,
+    } as const;
+
+    return Object.fromEntries(
+      Object.entries(permissionMap).map(([key, value]) => [
+        key,
+        isSuperAdmin || permissions.includes(value),
+      ])
+    );
   }
 
   /*
@@ -72,8 +84,9 @@ export class PermissionController {
 
     this.logger.info(`Controller.list called.`, { response, page: query.page, perPage: query.per_page, keywords: query.keywords, filters: query.filters, lang });
 
+    const userRoles = req.user?.roles || [];
     const userPermissions = req.user?.permissions || [];
-    const access = this.buildAccess(userPermissions);
+    const access = this.buildAccess(userRoles, userPermissions);
     
     return ResponseTrait.success({
       module: MODULE.PERMISSION,
@@ -253,6 +266,46 @@ export class PermissionController {
   ) {
     await this.uc.revokePermissionFromUser(body);
     this.logger.info(`Controller.revokePermissionFromUser called.`, { body, lang });
+
+    return ResponseTrait.success({
+      module: MODULE.PERMISSION,
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.permission.revoked'),
+      httpCode: HTTP.OK,
+    });
+  }
+
+  @Post('assign-to-feature')
+  @Roles('superadmin')
+  @Permissions(`assign:${MODULE_NAME}:feature`)
+  @HttpCode(HTTP.OK)
+  async assignPermissionToFeature(
+    @Body(new ZodValidationPipe(permissionTypes.AssignPermissionFeatureSchema)) 
+    body: permissionTypes.AssignPermissionFeatureDTO, 
+    @Lang() lang: string
+  ) {
+    await this.uc.assignPermissionToFeature(body);
+    this.logger.info(`Controller.assignPermissionToFeature called.`, { body, lang });
+
+    return ResponseTrait.success({
+      module: MODULE.PERMISSION,
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.permission.assigned'),
+      httpCode: HTTP.OK,
+    });
+  }
+
+  @Post('revoke-from-feature')
+  @Roles('superadmin')
+  @Permissions(`revoke:${MODULE_NAME}:feature`)
+  @HttpCode(HTTP.OK)
+  async revokePermissionFromFeature(
+    @Body(new ZodValidationPipe(permissionTypes.RevokePermissionFeatureSchema)) 
+    body: permissionTypes.RevokePermissionFeatureDTO, 
+    @Lang() lang: string
+  ) {
+    await this.uc.revokePermissionFromFeature(body);
+    this.logger.info(`Controller.revokePermissionFromFeature called.`, { body, lang });
 
     return ResponseTrait.success({
       module: MODULE.PERMISSION,

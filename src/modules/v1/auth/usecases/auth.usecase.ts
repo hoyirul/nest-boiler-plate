@@ -27,7 +27,7 @@ export class AuthUseCase {
     const expiresInSec = parseInt(env.JWT_EXPIRES_IN) || 86400; // default 1 day
     const { token, jti, exp } = await createToken({ id: String(user.id), email: user.email }, expiresInSec);
 
-    const ttl = exp - Math.floor(Date.now() / 1000);
+    const ttl = expiresInSec;
     await this.redis.createSession(String(user.id), jti, ttl);
 
     // rbac

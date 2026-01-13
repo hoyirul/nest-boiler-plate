@@ -135,7 +135,7 @@ export class UserRepository {
       .update(users)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(eq(users.id, id))
       .returning();
@@ -147,7 +147,7 @@ export class UserRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(users)
-      .set({ status: status, updated_at: new Date() })
+      .set({ status: status, updated_at: sql`now()` })
       .where(eq(users.id, id))
       .returning();
   }
@@ -156,7 +156,7 @@ export class UserRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(users)
-      .set({ password: data.new_password, updated_at: new Date() })
+      .set({ password: data.new_password, updated_at: sql`now()` })
       .where(eq(users.id, id))
       .returning();
   }
@@ -165,7 +165,7 @@ export class UserRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(users)
-      .set({ email: data.email, updated_at: new Date() })
+      .set({ email: data.email, updated_at: sql`now()` })
       .where(eq(users.id, id))
       .returning();
   }

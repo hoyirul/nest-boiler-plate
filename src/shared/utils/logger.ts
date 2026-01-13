@@ -93,4 +93,7 @@ export const Loggers = {
   division: new Logger("DIVISION"),
   department: new Logger("DEPARTMENT"),
   position: new Logger("POSITION"),
+  feature: new Logger("FEATURE"),
+  approval: new Logger("APPROVAL"),
+  status: new Logger("STATUS"),
 };

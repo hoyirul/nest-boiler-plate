@@ -118,7 +118,7 @@ export class RoleRepository {
       .update(roles)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -135,7 +135,7 @@ export class RoleRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(roles)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(roles.deleted_at),

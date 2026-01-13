@@ -1,10 +1,10 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Scope } from '@nestjs/common';
 import { AuthUseCase } from '@/modules/v1/auth/usecases/auth.usecase';
 import { AuthError } from '@/shared/utils/errors';
 import { verifyToken } from '@/shared/utils/jwt';
 import { AuthProvider } from '@/shared/providers/auth.provider';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly authUseCase: AuthUseCase,

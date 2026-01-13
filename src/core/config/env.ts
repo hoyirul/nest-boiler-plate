@@ -9,6 +9,7 @@ const envSchema = z.object({
   APP_DEBUG: z.boolean().default(true),
   APP_HOST: z.string().default("localhost"),
   APP_PORT: z.number().default(3000),
+  APP_TIMEZONE: z.string().default("Asia/Jakarta"),
   PUBLIC_URL: z.string().default("http://localhost:3000"),
 
   // Database
@@ -70,6 +71,7 @@ export const env = envSchema.parse({
   APP_DEBUG: process.env.APP_DEBUG === "true",
   APP_HOST: process.env.APP_HOST,
   APP_PORT: process.env.APP_PORT ? Number(process.env.APP_PORT) : undefined,
+  APP_TIMEZONE: process.env.APP_TIMEZONE,
   PUBLIC_URL: process.env.PUBLIC_URL,
 
   DB_CONNECTION: process.env.DB_CONNECTION,

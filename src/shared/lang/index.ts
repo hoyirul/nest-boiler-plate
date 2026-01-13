@@ -10,7 +10,19 @@ const getNested = (obj: any, path: string) => {
 
 export const getMessage = (
   lang: string = "id",
-  path: string // e.g: "api.modules.user.fetched_all"
+  path: string, 
+  params?: Record<string, string | number> 
 ) => {
-  return getNested(languages[lang], path) ?? getNested(languages["id"], path) ?? "";
+  let template = getNested(languages[lang], path) 
+                 ?? getNested(languages["id"], path) 
+                 ?? "";
+
+  if (params) {
+    for (const key in params) {
+      const value = params[key];
+      template = template.replaceAll(`:${key}`, String(value));
+    }
+  }
+
+  return template;
 };

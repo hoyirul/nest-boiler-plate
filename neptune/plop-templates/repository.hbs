@@ -95,7 +95,7 @@ export class {{properCase name}}Repository {
       .update({{name}}s)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -112,7 +112,7 @@ export class {{properCase name}}Repository {
     const db = await this.getExecutor(tx);
     return db
       .update({{name}}s)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull({{name}}s.deleted_at),

@@ -1,12 +1,20 @@
 import { DefaultServer } from "@/core/db";
 import { examples } from "@/core/db/schema/example.schema";
+import { approvalLogs } from "@/core/db/schema/approval-log.schema";
 import { eq, count, sql, and, isNull } from "drizzle-orm";
 import { CreateExampleDTO, UpdateExampleDTO } from "@/modules/v1/example/domains/example.types";
 import { Injectable } from "@nestjs/common";
 import { ExampleEntity } from "@/modules/v1/example/domains/example.entity";
+import { AuthProvider } from "@/shared/providers/auth.provider";
+import { statuses } from "@/core/db/schema/status.schema";
 
 @Injectable()
 export class ExampleRepository {
+
+  constructor(
+    private readonly authProvider: AuthProvider,
+  ) {}
+
   public getExecutor(tx?: any) {
     return tx || DefaultServer();
   }
@@ -56,10 +64,17 @@ export class ExampleRepository {
         id: table.id,
         name: table.name,
         attachment: table.attachment,
+        status: {
+          id: statuses.id,
+          code: statuses.code,
+          label: statuses.label,
+          sort_order: statuses.sort_order,
+        },
         created_at: table.created_at,
         updated_at: table.updated_at,
       })
       .from(table)
+      .innerJoin(statuses, eq(examples.status_id, statuses.id))
       .where(sql.join(conditions, sql` AND `))
       .limit(limit)
       .offset(offset)
@@ -86,10 +101,17 @@ export class ExampleRepository {
         id: examples.id,
         name: examples.name,
         attachment: examples.attachment,
+        status: {
+          id: statuses.id,
+          code: statuses.code,
+          label: statuses.label,
+          sort_order: statuses.sort_order,
+        },
         created_at: examples.created_at,
         updated_at: examples.updated_at,
       })
       .from(examples)
+      .innerJoin(statuses, eq(examples.status_id, statuses.id))
       .where(
         and(
           withDeleted ? sql`TRUE` : isNull(examples.deleted_at),
@@ -107,7 +129,7 @@ export class ExampleRepository {
       .update(examples)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -124,7 +146,7 @@ export class ExampleRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(examples)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(examples.deleted_at),
@@ -145,5 +167,66 @@ export class ExampleRepository {
         )
       )
       .returning();
+  }
+
+  // Approval and logging related methods can be added here
+  async changeStatus(id: number, statusId: number, tx?: any) {
+    const db = await this.getExecutor(tx);
+    const result = await db
+      .update(examples)
+      .set({
+        status_id: statusId,
+        updated_at: sql`now()`,
+      })
+      .where(
+        and(
+          isNull(examples.deleted_at),
+          eq(examples.id, id),
+        )
+      )
+      .returning();
+
+    if (result[0]) {
+      // Log the status change
+      await db.insert(approvalLogs).values({
+        approval_id: id,
+        model_type: "examples",
+        model_id: String(id),
+        status_from: result[0].status_id,
+        status_to: statusId,
+        // user logged in
+        changed_by: this.authProvider.getUser()!.id,
+      });
+    }
+
+    return result[0] ?? null;
+  }
+
+  async checkStatus(currentStatusId: number, newStatusId: number) {
+    const db = await this.getExecutor();
+    const currentStatus = await db
+      .select({
+        id: statuses.id,
+        code: statuses.code,
+        label: statuses.label,
+        sort_order: statuses.sort_order,
+      })
+      .from(statuses)
+      .where(eq(statuses.id, currentStatusId));
+
+    const newStatus = await db
+      .select({
+        id: statuses.id,
+        code: statuses.code,
+        label: statuses.label,
+        sort_order: statuses.sort_order,
+      })
+      .from(statuses)
+      .where(eq(statuses.id, newStatusId));
+      
+    return {
+      currentStatus: currentStatus[0],
+      newStatus: newStatus[0],
+    }
   }
 }

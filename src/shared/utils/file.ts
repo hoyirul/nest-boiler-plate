@@ -5,18 +5,19 @@ import * as fs from 'fs';
 import { env } from '@/core/config/env';
 import { AppError } from './errors';
 import { Loggers } from "@/shared/utils/logger";
+import { DateTime } from "@/shared/utils/datetime";
 
 export function generateFileName(
   module: string,
   originalName: string
 ) {
   const ext = path.extname(originalName);
-  const now = new Date();
+  const now = DateTime.now();
 
   return [
     module,
-    now.getFullYear(),
-    String(now.getMonth() + 1).padStart(2, "0"),
+    now.format("YYYY"),
+    now.format("MM"),
     `${randomUUID()}${ext}`,
   ].join("/");
 }

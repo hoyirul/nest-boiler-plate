@@ -39,7 +39,7 @@ export class DepartmentRepository {
       .select({ value: count() })
       .from(departments);
 
-    const code = generateNextCode('DEP', (Number(total[0].value) + 1), 3);
+    const code = generateNextCode('DEP', (Number(total[0].value)), 3);
 
     const result = await db.insert(departments).values({ ...data, code }).returning();
     return result[0];
@@ -74,7 +74,7 @@ export class DepartmentRepository {
       .where(sql.join(conditions, ' AND '))
       .limit(limit)
       .offset(offset)
-      .orderBy(sql`${table}.created_at DESC`);
+      .orderBy(sql`${table}.code DESC`);
 
     const totalResult = await db
       .select({ value: count() })
@@ -117,7 +117,7 @@ export class DepartmentRepository {
       .update(departments)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -134,7 +134,7 @@ export class DepartmentRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(departments)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(departments.deleted_at),
@@ -152,8 +152,7 @@ export class DepartmentRepository {
       .where(
         and(
           eq(departments.id, id),
-          // only restore if it is deleted
-          sql`$departments.deleted_at IS NOT NULL`,
+          sql`${departments}.deleted_at IS NOT NULL`,
         )
       )
       .returning();

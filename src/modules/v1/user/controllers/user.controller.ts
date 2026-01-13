@@ -34,16 +34,25 @@ export class UserController {
   private readonly logger = Loggers.user;
   constructor(private readonly uc: UserUseCase) {}
 
-  private buildAccess(permissions: string[] = []) {
-    return {
-      view: permissions.includes(`view:${MODULE_NAME}`),
-      show: permissions.includes(`show:${MODULE_NAME}`),
-      create: permissions.includes(`create:${MODULE_NAME}`),
-      update: permissions.includes(`update:${MODULE_NAME}`),
-      us: permissions.includes(`update:${MODULE_NAME}:status`), // Update Status
-      up: permissions.includes(`update:${MODULE_NAME}:password`), // Update Password
-      ue: permissions.includes(`update:${MODULE_NAME}:email`), // Update Email
-    };
+  private buildAccess(roles: string[] = [], permissions: string[] = []) {
+    const isSuperAdmin = roles.includes('superadmin');
+
+    const permissionMap = {
+      view: `view:${MODULE_NAME}`,
+      show: `show:${MODULE_NAME}`,
+      create: `create:${MODULE_NAME}`,
+      update: `update:${MODULE_NAME}`,
+      us: `update:${MODULE_NAME}:status`, // Update Status
+      up: `update:${MODULE_NAME}:password`, // Update Password
+      ue: `update:${MODULE_NAME}:email`, // Update Email
+    } as const;
+
+    return Object.fromEntries(
+      Object.entries(permissionMap).map(([key, value]) => [
+        key,
+        isSuperAdmin || permissions.includes(value),
+      ])
+    );
   }
 
   /*
@@ -70,8 +79,9 @@ export class UserController {
 
     this.logger.info(`Controller.list called.`, { response, page: query.page, perPage: query.per_page, keywords: query.keywords, filters: query.filters, lang });
 
+    const userRoles = req.user?.roles || [];
     const userPermissions = req.user?.permissions || [];
-    const access = this.buildAccess(userPermissions);
+    const access = this.buildAccess(userRoles, userPermissions);
     
     return ResponseTrait.success({
       module: MODULE.USER,

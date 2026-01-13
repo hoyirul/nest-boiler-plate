@@ -2,6 +2,8 @@ import { DefaultServer } from "@/core/db";
 import { permissions } from "@/core/db/schema/permission.schema";
 import { roles } from "@/core/db/schema/role.schema";
 import { users } from "@/core/db/schema/user.schema";
+import { features } from "@/core/db/schema/feature.schema";
+import { featurePermissions } from "@/core/db/schema/feature-permission.schema";
 import { roleHasPermissions } from "@/core/db/schema/role-has-permissions.schema";
 import { modelHasPermissions } from "@/core/db/schema/model-has-permissions.schema";
 import { eq, count, sql, and, isNull, inArray } from "drizzle-orm";
@@ -11,7 +13,9 @@ import {
   AssignPermissionRoleDTO, 
   RevokePermissionRoleDTO,
   AssignPermissionUserDTO,
-  RevokePermissionUserDTO
+  RevokePermissionUserDTO,
+  AssignPermissionFeatureDTO,
+  RevokePermissionFeatureDTO
 } from "@/modules/v1/permission/domains/permission.types";
 import { Injectable } from "@nestjs/common";
 
@@ -133,7 +137,7 @@ export class PermissionRepository {
       .update(permissions)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -150,7 +154,7 @@ export class PermissionRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(permissions)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(permissions.deleted_at),
@@ -204,6 +208,21 @@ export class PermissionRepository {
 
     return Number(result[0].value) > 0;
   }
+
+  async isExistPermissionFeature(data: AssignPermissionFeatureDTO | RevokePermissionFeatureDTO) {
+    const db = await this.getExecutor();
+    const result = await db
+      .select({ value: count() })
+      .from(featurePermissions)
+      .where(
+        and(
+          eq(featurePermissions.permission_id, data.permission_id),
+          eq(featurePermissions.feature_id, data.feature_id),
+        )
+      );
+
+    return Number(result[0].value) > 0;
+  }
   
   async findRoleById(id: number) {
     const db = await this.getExecutor();
@@ -239,6 +258,27 @@ export class PermissionRepository {
       })
       .from(users)
       .where(eq(users.id, id))
+      .limit(1);
+
+    return result[0] ?? null;
+  }
+
+  async findFeatureById(id: number) {
+    const db = await this.getExecutor();
+    const result = await db
+      .select({
+        id: features.id,
+        name: features.name,
+        created_at: features.created_at,
+        updated_at: features.updated_at,
+      })
+      .from(features)
+      .where(
+        and(
+          isNull(features.deleted_at),
+          eq(features.id, id),
+        )
+      )
       .limit(1);
 
     return result[0] ?? null;
@@ -288,6 +328,28 @@ export class PermissionRepository {
         inArray(modelHasPermissions.permission_id, data.permission_ids),
         eq(modelHasPermissions.model_type, 'User'),
         eq(modelHasPermissions.model_id, data.model_id),
+      )
+    );
+
+    return result;
+  }
+
+  async assignPermissionToFeature(data: AssignPermissionFeatureDTO, tx?: any) {
+    const db = await this.getExecutor(tx);
+    await db.insert(featurePermissions).values({
+      feature_id: data.feature_id,
+      permission_id: data.permission_id,
+    }).onConflictDoNothing();
+
+    return true;
+  }
+
+  async revokePermissionFromFeature(data: RevokePermissionFeatureDTO, tx?: any) {
+    const db = await this.getExecutor(tx);
+    const result = await db.delete(featurePermissions).where(
+      and(
+        eq(featurePermissions.feature_id, data.feature_id),
+        eq(featurePermissions.permission_id, data.permission_id),
       )
     );
 

@@ -3,10 +3,12 @@ import { z } from "zod";
 
 export const CreatePermissionSchema = z.object({
   name: z.string().min(1, "api.modules.permission.validation.name.required").max(100, "api.modules.permission.validation.name.max_length"),
+  description: z.string().max(255, "api.modules.permission.validation.description.max_length").optional(),
 });
 
 export const UpdatePermissionSchema = z.object({
   name: z.string().min(1, "api.modules.permission.validation.name.required").max(100, "api.modules.permission.validation.name.max_length").optional(),
+  description: z.string().max(255, "api.modules.permission.validation.description.max_length").optional(),
 });
 
 export const AssignPermissionRoleSchema = z.object({
@@ -53,6 +55,16 @@ export const RevokePermissionUserSchema = z.object({
   model_id: z.string().min(1, "api.modules.permission.validation.assign.model_id.required").max(36, "api.modules.permission.validation.assign.model_id.max_length"),
 });
 
+export const AssignPermissionFeatureSchema = z.object({
+  feature_id: z.number().min(1, "api.modules.permission.validation.assign.feature_id.required"),
+  permission_id: z.number().min(1, "api.modules.permission.validation.assign.permission_id.required"),
+});
+
+export const RevokePermissionFeatureSchema = z.object({
+  feature_id: z.number().min(1, "api.modules.permission.validation.assign.feature_id.required"),
+  permission_id: z.number().min(1, "api.modules.permission.validation.assign.permission_id.required"),
+});
+
 export type CreatePermissionDTO = z.infer<typeof CreatePermissionSchema>;
 export type UpdatePermissionDTO = z.infer<typeof UpdatePermissionSchema>;
 
@@ -61,3 +73,6 @@ export type RevokePermissionRoleDTO = z.infer<typeof RevokePermissionRoleSchema>
 
 export type AssignPermissionUserDTO = z.infer<typeof AssignPermissionUserSchema>;
 export type RevokePermissionUserDTO = z.infer<typeof RevokePermissionUserSchema>;
+
+export type AssignPermissionFeatureDTO = z.infer<typeof AssignPermissionFeatureSchema>;
+export type RevokePermissionFeatureDTO = z.infer<typeof RevokePermissionFeatureSchema>;

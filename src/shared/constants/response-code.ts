@@ -12,6 +12,9 @@ export const MODULE = {
   DIVISION: "DI",
   DEPARTMENT: "DE",
   POSITION: "PO",
+  FEATURE: "FE",
+  APPROVAL: "AP",
+  STATUS: "ST",
 } as const;
 
 // Response Type

@@ -39,7 +39,7 @@ export class DivisionRepository {
       .select({ value: count() })
       .from(divisions);
 
-    const code = generateNextCode('DIV', (Number(total[0].value) + 1), 3);
+    const code = generateNextCode('DIV', (Number(total[0].value)), 3);
 
     const result = await db.insert(divisions).values({ ...data, code }).returning();
     return result[0];
@@ -73,7 +73,7 @@ export class DivisionRepository {
       .where(sql.join(conditions, ' AND '))
       .limit(limit)
       .offset(offset)
-      .orderBy(sql`${table}.created_at DESC`);
+      .orderBy(sql`${table}.code DESC`);
 
     const totalResult = await db
       .select({ value: count() })
@@ -115,7 +115,7 @@ export class DivisionRepository {
       .update(divisions)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -132,7 +132,7 @@ export class DivisionRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(divisions)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(divisions.deleted_at),

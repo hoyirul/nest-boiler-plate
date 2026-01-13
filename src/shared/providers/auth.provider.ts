@@ -15,4 +15,8 @@ export class AuthProvider {
     });
     return this.user;
   }
+
+  clearUser() {
+    this.user = null;
+  }
 }

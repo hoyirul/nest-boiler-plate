@@ -63,8 +63,11 @@
         "updated": "Example berhasil diperbarui",
         "deleted": "Example berhasil dihapus",
         "restored": "Example berhasil dipulihkan",
+        "status_changed": "Data :name berhasil di :status",
         "not_found": "Example tidak ditemukan",
         "already_exists": "Example dengan nama tersebut sudah ada",
+        "invalid_status": "Status example tidak valid",
+        "status_transition_invalid": "Transisi status example tidak valid",
         "validation": {
           "example": {
             "exists": "Example sudah ada"
@@ -77,6 +80,10 @@
             "required": "Lampiran wajib diisi",
             "invalid_type": "Tipe lampiran tidak valid",
             "max_size": "Ukuran lampiran maksimal 2MB"
+          },
+          "status_id": {
+            "required": "ID status wajib diisi",
+            "numeric": "ID status harus berupa angka"
           }
         }
       },
@@ -149,6 +156,90 @@
           }
         }
       },
+      "approval": {
+        "fetched": "Data approval berhasil diambil",
+        "created": "Approval berhasil dibuat",
+        "updated": "Approval berhasil diperbarui",
+        "deleted": "Approval berhasil dihapus",
+        "restored": "Approval berhasil dipulihkan",
+        "not_found": "Approval tidak ditemukan",
+        "already_exists": "Approval dengan nama tersebut sudah ada",
+        "validation": {
+          "approval": {
+            "exists": "Approval sudah ada"
+          },
+          "model_type": {
+            "required": "Tipe model wajib diisi"
+          },
+          "model_id": {
+            "required": "ID model wajib diisi"
+          },
+          "approver_id": {
+            "required": "ID approver wajib diisi"
+          },
+          "step": {
+            "required": "Step wajib diisi"
+          },
+          "status": {
+            "required": "Status wajib diisi"
+          }
+        }
+      },
+      "feature": {
+        "fetched": "Data fitur berhasil diambil",
+        "created": "Fitur berhasil dibuat",
+        "updated": "Fitur berhasil diperbarui",
+        "deleted": "Fitur berhasil dihapus",
+        "restored": "Fitur berhasil dipulihkan",
+        "not_found": "Fitur tidak ditemukan",
+        "already_exists": "Fitur dengan nama tersebut sudah ada",
+        "validation": {
+          "feature": {
+            "exists": "Fitur sudah ada"
+          },
+          "code": {
+            "required": "Kode wajib diisi"
+          },
+          "name": {
+            "required": "Nama wajib diisi"
+          },
+          "route_path": {
+            "required": "Route path wajib diisi"
+          },
+          "parent_id": {
+            "invalid": "Parent ID harus berupa angka"
+          },
+          "icon": {
+            "required": "Ikon wajib diisi"
+          },
+          "sort_order": {
+            "required": "Urutan wajib diisi"
+          }
+        }
+      },
+      "status": {
+        "fetched": "Data status berhasil diambil",
+        "created": "Status berhasil dibuat",
+        "updated": "Status berhasil diperbarui",
+        "deleted": "Status berhasil dihapus",
+        "restored": "Status berhasil dipulihkan",
+        "not_found": "Status tidak ditemukan",
+        "already_exists": "Status dengan nama tersebut sudah ada",
+        "validation": {
+          "status": {
+            "exists": "Status sudah ada"
+          },
+          "code": {
+            "required": "Kode wajib diisi"
+          },
+          "label": {
+            "required": "Label wajib diisi"
+          },
+          "sort_order": {
+            "required": "Urutan wajib diisi"
+          }
+        }
+      },
       "role": {
         "fetched": "Data role berhasil diambil",
         "created": "Role berhasil dibuat",
@@ -190,12 +281,13 @@
         "updated": "Permission berhasil diperbarui",
         "deleted": "Permission berhasil dihapus",
         "restored": "Permission berhasil dipulihkan",
-        "assigned": "Permission berhasil diberikan ke role",
-        "revoked": "Permission berhasil dicabut dari role",
+        "assigned": "Permission berhasil diberikan",
+        "revoked": "Permission berhasil dicabut",
         "not_found": "Permission tidak ditemukan",
         "already_exists": "Permission dengan nama tersebut sudah ada",
         "permission_role": "Permission sudah diberikan ke role",
         "permission_user": "Permission sudah diberikan ke pengguna",
+        "permission_feature": "Permission sudah diberikan ke fitur",
         "validation": {
           "permission": {
             "exists": "Permission sudah ada"
@@ -203,6 +295,9 @@
           "name": {
             "required": "Nama wajib diisi",
             "max_length": "Nama maksimal 100 karakter"
+          },
+          "description": {
+            "max_length": "Deskripsi maksimal 255 karakter"
           },
           "assign": {
             "role_id": {
@@ -212,6 +307,14 @@
             "permission_id": {
               "required": "Permission ID wajib diisi",
               "numeric": "Permission ID harus berupa angka"
+            },
+            "model_id": {
+              "required": "Model ID wajib diisi",
+              "max_length": "Model ID maksimal 100 karakter"
+            },
+            "feature_id": {
+              "required": "Feature ID wajib diisi",
+              "numeric": "Feature ID harus berupa angka"
             }
           }
         }

@@ -24,33 +24,41 @@ import { getMessage } from "@/shared/lang";
 import { Lang } from "@/shared/decorators/lang.decorator";
 import { HTTP } from "@/shared/constants/http-status";
 import { AuthGuard } from "@/shared/guards/auth.guard"; 
-import { RolesGuard } from '@/shared/guards/role.guard';
-import { PermissionsGuard } from '@/shared/guards/permission.guard';
 import { Roles, Permissions } from '@/shared/decorators/rbac.decorator';
+import { RbacGuard } from "@/shared/guards/rbac.guard";
 import { Loggers } from "@/shared/utils/logger";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "@/shared/upload/multer";
 import { FileValidationPipe } from "@/shared/pipes/file-validation.pipe";
-import { env } from "@/core/config/env";
 import { join } from "path";
 import { replaceFile } from "@/shared/utils/file";
 
 const MODULE_NAME = 'example';
-@UseGuards(AuthGuard, RolesGuard, PermissionsGuard)
+@UseGuards(AuthGuard, RbacGuard)
 @Controller('v1/examples')
 export class ExampleController {
   private readonly logger = Loggers.example;
   constructor(private readonly uc: ExampleUseCase) {}
 
-  private buildAccess(permissions: string[] = []) {
-    return {
-      view: permissions.includes(`view:${MODULE_NAME}`),
-      show: permissions.includes(`show:${MODULE_NAME}`),
-      create: permissions.includes(`create:${MODULE_NAME}`),
-      update: permissions.includes(`update:${MODULE_NAME}`),
-      delete: permissions.includes(`delete:${MODULE_NAME}`),
-      restore: permissions.includes(`restore:${MODULE_NAME}`),
-    };
+  private buildAccess(roles: string[] = [], permissions: string[] = []) {
+    const isSuperAdmin = roles.includes('superadmin');
+
+    const permissionMap = {
+      view: `view:${MODULE_NAME}`,
+      show: `show:${MODULE_NAME}`,
+      create: `create:${MODULE_NAME}`,
+      update: `update:${MODULE_NAME}`,
+      delete: `delete:${MODULE_NAME}`,
+      restore: `restore:${MODULE_NAME}`,
+      approve: `approve:${MODULE_NAME}`,
+    } as const;
+
+    return Object.fromEntries(
+      Object.entries(permissionMap).map(([key, value]) => [
+        key,
+        isSuperAdmin || permissions.includes(value),
+      ])
+    );
   }
 
   /*
@@ -96,8 +104,9 @@ export class ExampleController {
 
     this.logger.info(`Controller.list called.`, { response, page: query.page, perPage: query.per_page, keywords: query.keywords, filters: query.filters, lang });
 
+    const userRoles = req.user?.roles || [];
     const userPermissions = req.user?.permissions || [];
-    const access = this.buildAccess(userPermissions);
+    const access = this.buildAccess(userRoles, userPermissions);
     
     return ResponseTrait.success({
       module: MODULE.EXAMPLE,
@@ -221,6 +230,27 @@ export class ExampleController {
       statusLabel: RESP_STATUS.OK,
       message: getMessage(lang, 'api.modules.example.restored'),
       httpCode: HTTP.OK,
+    });
+  }
+
+  @Post(':id/approval')
+  @Roles('superadmin', 'admin')
+  @Permissions(`approve:${MODULE_NAME}`)
+  @HttpCode(HTTP.OK)
+  async approvalLine(
+    @Param('id') id: string, 
+    @Lang() lang: string) {
+      
+    const data = await this.uc.approvalLine(Number(id));
+
+    this.logger.info(`Controller.approvalLine called.`, { data, id, lang });
+
+    return ResponseTrait.success({
+      module: MODULE.EXAMPLE,
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.example.status_changed', { name: data.name, status: data.status || '' }),
+      httpCode: HTTP.OK,
+      data,
     });
   }
 }

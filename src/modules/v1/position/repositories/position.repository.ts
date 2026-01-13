@@ -8,6 +8,7 @@ import { positions } from "@/core/db/schema/position.schema";
 import { eq, count, sql, and, isNull, isNotNull } from "drizzle-orm";
 import { CreatePositionDTO, UpdatePositionDTO } from "@/modules/v1/position/domains/position.types";
 import { Injectable } from "@nestjs/common";
+import { generateNextCode } from "@/shared/utils/generator";
 
 @Injectable()
 export class PositionRepository {
@@ -33,7 +34,14 @@ export class PositionRepository {
 
   async create(data: CreatePositionDTO, tx?: any) {
     const db = await this.getExecutor(tx);
-    const result = await db.insert(positions).values(data).returning();
+    const total = await db
+      .select({ value: count() })
+      .from(positions);
+
+    const code = generateNextCode('PST', (Number(total[0].value)), 3);
+    const result = await db.insert(positions).values({
+      ...data, code,
+    }).returning();
     return result[0];
   }
 
@@ -58,7 +66,7 @@ export class PositionRepository {
       .where(sql.join(conditions, ' AND '))
       .limit(limit)
       .offset(offset)
-      .orderBy(sql`${table}.created_at DESC`);
+      .orderBy(sql`${table}.code DESC`);
 
     const totalResult = await db
       .select({ value: count() })
@@ -93,7 +101,7 @@ export class PositionRepository {
       .update(positions)
       .set({
         ...data,
-        updated_at: new Date(),
+        updated_at: sql`now()`,
       })
       .where(
         and(
@@ -110,7 +118,7 @@ export class PositionRepository {
     const db = await this.getExecutor(tx);
     return db
       .update(positions)
-      .set({ deleted_at: new Date() })
+      .set({ deleted_at: sql`now()` })
       .where(
         and(
           isNull(positions.deleted_at),
