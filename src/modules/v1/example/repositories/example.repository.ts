@@ -1,21 +1,14 @@
 import { DefaultServer } from "@/core/db";
 import { examples } from "@/core/db/schema/example.schema";
-import { approvalLogs } from "@/core/db/schema/approval-log.schema";
-import { eq, count, sql, and, isNull } from "drizzle-orm";
+import { eq, count, sql, and, isNull, SQL } from "drizzle-orm";
 import { CreateExampleDTO, UpdateExampleDTO } from "@/modules/v1/example/domains/example.types";
 import { Injectable } from "@nestjs/common";
 import { ExampleEntity } from "@/modules/v1/example/domains/example.entity";
-import { AuthProvider } from "@/shared/providers/auth.provider";
 import { statuses } from "@/core/db/schema/status.schema";
-import { actions } from "@/core/db/schema/action.schema";
-import { TRANSITIONS } from "@/shared/services/approvals/approval.constants";
+import { getTransitions } from "@/shared/services/approvals/approval.constants";
 
 @Injectable()
 export class ExampleRepository {
-
-  constructor(
-    private readonly authProvider: AuthProvider,
-  ) {}
 
   public getExecutor(tx?: any) {
     return tx || DefaultServer();
@@ -55,11 +48,20 @@ export class ExampleRepository {
     }
 
     // Dynamic filters
+    const filterHandlers: Record<string, (value: string) => SQL> = {
+      status: (value) => eq(statuses.code, value),
+    };
+
     if (filters) {
       for (const [key, value] of Object.entries(filters)) {
-        conditions.push(sql`${table}.${key} = ${value}`);
+        const handler = filterHandlers[key];
+        if (handler) {
+          conditions.push(handler(value));
+        }
       }
     }
+
+    console.log("DYNAMIC CONDITIONS:", conditions);
 
     var rows = await db
       .select({
@@ -80,11 +82,12 @@ export class ExampleRepository {
       .where(sql.join(conditions, sql` AND `))
       .limit(limit)
       .offset(offset)
-      .orderBy(sql`created_at DESC`);
+      .orderBy(sql`updated_at DESC`);
 
     const totalResult = await db
       .select({ value: count() })
       .from(table)
+      .innerJoin(statuses, eq(examples.status_id, statuses.id))
       .where(sql.join(conditions, sql` AND `));
 
     const data = ExampleEntity.fromRows(rows);
@@ -189,19 +192,6 @@ export class ExampleRepository {
       )
       .returning();
 
-    if (result[0]) {
-      // Log the status change
-      await db.insert(approvalLogs).values({
-        approval_id: id,
-        model_type: "examples",
-        model_id: String(id),
-        status_from: result[0].status_id,
-        status_to: statusId,
-        // user logged in
-        changed_by: this.authProvider.getUser()!.id,
-      });
-    }
-
     return result[0] ?? null;
   }
 
@@ -234,17 +224,30 @@ export class ExampleRepository {
   }
 
   async getNextStatusByAction(currentStatusCode: string, actionCode: string) {
-    const transition = TRANSITIONS.find(t => t.fromStatus === currentStatusCode && t.action === actionCode);
+    const from = currentStatusCode?.toLowerCase().trim();
+    const action = actionCode?.toLowerCase().trim();
+
+    const transition = getTransitions['examples'].find(
+      (t: { fromStatus: string; action: string; }) =>
+        t.fromStatus.toLowerCase() === from &&
+        t.action.toLowerCase() === action
+    );
+
+    console.log("TRANSITION FOUND:", transition);
+
     if (!transition) return null;
 
-    // ambil status_id dari DB
     const db = await this.getExecutor();
-    const status = await db.select({
-      id: statuses.id,
-      code: statuses.code,
-      label: statuses.label,
-      sort_order: statuses.sort_order,
-    }).from(statuses).where(eq(statuses.code, transition.toStatus));
+
+    const status = await db
+      .select({
+        id: statuses.id,
+        code: statuses.code,
+        label: statuses.label,
+        sort_order: statuses.sort_order,
+      })
+      .from(statuses)
+      .where(eq(statuses.code, transition.toStatus));
 
     return status[0];
   }

@@ -1,8 +1,20 @@
 // src/shared/approval/approval.types.ts
 
-export type ApprovalStepState = 'WAITING' | 'CURRENT' | 'DONE';
+export type ApprovalStepState =
+  | 'WAITING'
+  | 'CURRENT'
+  | 'DONE'
+  | 'CANCELED'
+  | 'REJECTED'
+  | 'REVISED';
 
 export interface Action {
+  code: string;
+  label: string;
+}
+
+export interface Status {
+  id: number;
   code: string;
   label: string;
 }
@@ -20,6 +32,8 @@ export interface ApprovalLine {
   };
   action_id: number; // template action
   action?: Action;
+  next_action?: Action;
+  remarks?: string;
 
   // Allowed actions diambil dari master / transition table
   allowed_actions?: Action[];
@@ -27,9 +41,9 @@ export interface ApprovalLine {
 
 export interface ApprovalLog {
   approval_id: number;
-  status_from: number;
+  status_from: Status;
   action_id: number;
-  status_to: number;
+  status_to: Status;
   changed_by: string;
   created_at: Date;
 }
@@ -45,7 +59,7 @@ export interface ApprovalLineState {
     position?: { id: number; name: string };
   };
   state: ApprovalStepState;
-  approved_at: Date | null;
+  actioned_at: string | null;
   allowed_actions: Action[]; // bisa approve/reject
   next_action: { code: string; label: string } | null;
 }

@@ -8,6 +8,8 @@ import { eq, and } from "drizzle-orm";
 import { Injectable } from "@nestjs/common";
 import { approvalLogs } from "@/core/db/schema/approval-log.schema";
 import { actions } from "@/core/db/schema/action.schema";
+import { statuses } from "@/core/db/schema/status.schema";
+import { alias } from "drizzle-orm/pg-core";
 
 @Injectable()
 export class ApprovalLogRepository {
@@ -53,16 +55,28 @@ export class ApprovalLogRepository {
   ) {
     const db = await this.getExecutor(tx);
 
+    const statusFrom = alias(statuses, "status_from");
+    const statusTo = alias(statuses, "status_to");
     return db
       .select({
         id: approvalLogs.id,
         approval_id: approvalLogs.approval_id,
-        status_from: approvalLogs.status_from,
+        status_from: {
+          id: statusFrom.id,
+          code: statusFrom.code,
+          label: statusFrom.label,
+        },
         action_id: approvalLogs.action_id,
-        status_to: approvalLogs.status_to,
+        status_to: {
+          id: statusTo.id,
+          code: statusTo.code,
+          label: statusTo.label,
+        },
         created_at: approvalLogs.created_at,
       })
       .from(approvalLogs)
+      .innerJoin(statusFrom, eq(approvalLogs.status_from, statusFrom.id))
+      .innerJoin(statusTo, eq(approvalLogs.status_to, statusTo.id))
       .where(
         and(
           eq(approvalLogs.model_type, modelType),

@@ -13,6 +13,10 @@ import { Injectable } from "@nestjs/common";
 export class FeatureUseCase {
   constructor(private readonly repo: FeatureRepository) {}
 
+  async getFeatureTree() {
+    return this.repo.getFeatureTree();
+  }
+
   async create(payload: CreateFeatureDTO) {
     const db = await this.repo.getExecutor();
 

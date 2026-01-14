@@ -33,7 +33,7 @@ async function bootstrap() {
   });
 
   // Pipes & Interceptors
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }));
   app.useGlobalInterceptors(new LangInterceptor());
   app.useGlobalFilters(new AppExceptionFilter());
 

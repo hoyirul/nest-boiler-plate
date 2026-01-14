@@ -56,8 +56,10 @@ export class ExampleUseCase {
     const approvalLogs = await this.approvalLogRepo.findByModel('examples', id.toString());
 
     const approvalState = ApprovalService.resolve({
+      module: 'examples',
       approvalLines,
       approvalLogs,
+      currentStatus: example.status?.code,
       currentUserId: this.getUserId()
     });
 
@@ -162,8 +164,10 @@ export class ExampleUseCase {
       const approvalLogs = await this.approvalLogRepo.findByModel('examples', id.toString());
 
       const state = ApprovalService.resolve({
+        module: 'examples',
         approvalLines,
         approvalLogs,
+        currentStatus: example.status?.code,
         currentUserId: this.getUserId(),
       });
 
@@ -180,15 +184,33 @@ export class ExampleUseCase {
         });
       }
 
+      const currentLine = state.lines.find(l => l.step === state.current_step);
+
+      if (!currentLine) {
+        throw ValidationError("api.common.validation_failed", {
+          approval: "api.common.no_current_approval_line",
+        })
+      }
+
+      const allowed = [
+        ...(currentLine.allowed_actions?.map((a: { code: string; }) => a.code) ?? []),
+        currentLine.next_action?.code
+      ]
+
+      if (!allowed.includes(action)) {
+        throw ValidationError("api.common.validation_failed", {
+          approval: "api.common.action_not_allowed_in_this_step",
+        })
+      }
+
       const nextStatus = await this.repo.getNextStatusByAction(
         example.status!.code,
         action,
       );
 
-
       if (!nextStatus) {
         throw ValidationError("api.common.validation_failed", {
-          approval: "api.modules.example.invalid_approval_action",
+          approval: "api.common.invalid_approval_action_mapping",
         });
       }
 
@@ -196,7 +218,7 @@ export class ExampleUseCase {
 
       if (!actionRecord) {
         throw ValidationError("api.common.validation_failed", {
-          approval: "api.modules.example.invalid_action",
+          approval: "api.common.invalid_action",
         });
       }
 

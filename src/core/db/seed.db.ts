@@ -29,10 +29,12 @@ async function seed() {
         .values([
           { code: "draft", label: "Draft", sort_order: 1 },
           { code: "submitted", label: "Submitted", sort_order: 2 },
-          { code: "waiting-approval", label: "Waiting Approval", sort_order: 3 },
-          { code: "approved", label: "Approved", sort_order: 4 },
-          { code: "rejected", label: "Rejected", sort_order: 5 },
-          { code: "canceled", label: "Canceled", sort_order: 6 },
+          { code: "in-process", label: "In Process", sort_order: 3 },
+          { code: "in-review", label: "In Review", sort_order: 4 },
+          { code: "waiting-approval", label: "Waiting Approval", sort_order: 5 },
+          { code: "approved", label: "Approved", sort_order: 6 },
+          { code: "rejected", label: "Rejected", sort_order: 7 },
+          { code: "canceled", label: "Canceled", sort_order: 8 },
         ])
         .returning({ id: statuses.id, code: statuses.code });
       
@@ -43,9 +45,11 @@ async function seed() {
         .insert(actions)
         .values([
           { code: "submit", label: "Submit", sort_order: 1 },
-          { code: "approve", label: "Approve", sort_order: 2 },
-          { code: "reject", label: "Reject", sort_order: 3 },
-          { code: "cancel", label: "Cancel", sort_order: 4 },
+          { code: "process", label: "Process", sort_order: 2 },
+          { code: "review", label: "Review", sort_order: 3 },
+          { code: "approve", label: "Approve", sort_order: 4 },
+          { code: "reject", label: "Reject", sort_order: 5 },
+          { code: "cancel", label: "Cancel", sort_order: 6 },
         ])
         .returning({ id: actions.id, code: actions.code });
 

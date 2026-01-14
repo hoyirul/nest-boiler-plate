@@ -66,6 +66,26 @@ export class FeatureController {
     }
   }
 
+  @Get('tree')
+  @Roles('superadmin')
+  @Permissions(`view:${MODULE_NAME}`)
+  @HttpCode(HTTP.OK)
+  async tree(
+    @Lang() lang: string
+  ): Promise<object> {
+    const response = await this.uc.getFeatureTree();
+
+    this.logger.info(`Controller.tree called.`, { lang });
+    
+    return ResponseTrait.success({
+      module: MODULE.FEATURE,
+      statusLabel: RESP_STATUS.OK,
+      message: getMessage(lang, 'api.modules.feature.fetched'),
+      httpCode: HTTP.OK,
+      data: response,
+    });
+  }
+
   @Get()
   @Roles('superadmin')
   @Permissions(`view:${MODULE_NAME}`)

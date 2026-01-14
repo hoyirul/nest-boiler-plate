@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { IsOptional, IsNumber, IsString, IsObject } from 'class-validator';
 export class ListQueryDTO {
   @IsOptional()
@@ -12,8 +12,9 @@ export class ListQueryDTO {
   @IsOptional()
   @IsString()
   keywords: string = '';
-
+  
   @IsOptional()
   @IsObject()
+  @Transform(({ value }) => JSON.parse(value))
   filters?: Record<string, string>; // filters like {status: "active", category: "finance"}
 }

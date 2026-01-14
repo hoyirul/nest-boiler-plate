@@ -383,6 +383,9 @@
       "no_current_approval_line": "Tidak ada garis approval saat ini",
       "not_allowed_to_approve": "Anda tidak diizinkan untuk menyetujui tindakan ini",
       "user_not_set_in_auth_provider": "Pengguna tidak disetel dalam penyedia otentikasi",
+      "action_not_allowed_in_this_step": "Aksi tidak diizinkan pada langkah ini",
+      "invalid_action": "Aksi tidak valid",
+      "invalid_approval_action_mapping": "Pemetaan aksi approval tidak valid",
       "too_many_requests": "Terlalu banyak permintaan dari IP ini, silakan coba lagi nanti"
     }
   }

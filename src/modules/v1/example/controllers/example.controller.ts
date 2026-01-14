@@ -100,6 +100,7 @@ export class ExampleController {
     @Query() query: ListQueryDTO,
     @Lang() lang: string
   ): Promise<object> {
+    console.log("QUERY FILTERS:", query.filters);
     const response = await this.uc.list(Number(query.page), Number(query.per_page), query.keywords, query.filters);
 
     this.logger.info(`Controller.list called.`, { response, page: query.page, perPage: query.per_page, keywords: query.keywords, filters: query.filters, lang });
