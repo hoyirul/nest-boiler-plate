@@ -6,12 +6,15 @@ import { LoginDTO } from '@/modules/v1/auth/domains/auth.types';
 import { AuthError } from '@/shared/utils/errors';
 import { createToken, verifyToken } from '@/shared/utils/jwt';
 import { env } from '@/core/config/env';
+import { FeatureRepository } from '@/modules/v1/feature/repositories/feature.repository';
+import { filterFeatureTree } from '@/shared/utils/feature';
 
 @Injectable()
 export class AuthUseCase {
   constructor(
     private readonly repo: AuthRepository,
-    private readonly redis: RedisCache
+    private readonly redis: RedisCache,
+    private readonly featureRepo: FeatureRepository
   ) {}
 
   async login(payload: LoginDTO) {
@@ -38,6 +41,16 @@ export class AuthUseCase {
     });
     // cache rbac just 15 minutes
     await this.redis.createCacheRbac(String(user.id), rbacData, 900); // 15 minutes
+    const featureTree = await this.featureRepo.getFeatureTree();
+
+    const filteredTree = filterFeatureTree(featureTree, userRBAC!.permissions);
+    await this.redis.createCacheFeatureTree(
+      String(user.id),
+      JSON.stringify({
+        feature_tree: filteredTree
+      }),
+      1800 // 30 minutes
+    );
 
     return {
       token_type: 'Bearer',
@@ -53,11 +66,11 @@ export class AuthUseCase {
 
   async me(token: string) {
     const payload = await verifyToken(token);
-    const { token: userId, rbac } = await this.redis.findByJti(payload.jti);
+    const { token: userId, rbac, featureTree } = await this.redis.findByJti(payload.jti);
     if (!userId) throw AuthError('api.modules.auth.validation.token_not_found');
-
+    
     // if redis not found
-    if(!rbac) {
+    if(!rbac || !featureTree) {
       const user = await this.repo.findByIdWithRbac(String(userId));
       if (!user) throw AuthError('api.modules.auth.validation.user_not_found');
 
@@ -66,13 +79,25 @@ export class AuthUseCase {
         permissions: user.permissions
       });
 
+      const featureTreeData = await this.featureRepo.getFeatureTree();
+      
+      const filteredTree = filterFeatureTree(featureTreeData, user.permissions);
+
       await this.redis.createCacheRbac(String(user.id), rbacData, 3600); // 1 jam
+      await this.redis.createCacheFeatureTree(
+        String(user.id),
+        JSON.stringify({
+          feature_tree: filteredTree
+        }),
+        1800 // 30 minutes
+      );
 
       return {
         id: String(user.id),
         email: user.email,
         roles: user.roles,
-        permissions: user.permissions
+        permissions: user.permissions,
+        feature_tree: filteredTree
       };
     }
 
@@ -80,7 +105,8 @@ export class AuthUseCase {
       id: String(userId),
       email: payload.email,
       roles: JSON.parse(rbac).roles,
-      permissions: JSON.parse(rbac).permissions
+      permissions: JSON.parse(rbac).permissions,
+      feature_tree: JSON.parse(featureTree).feature_tree
     };
   }
 

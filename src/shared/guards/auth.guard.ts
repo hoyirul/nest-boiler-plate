@@ -46,6 +46,7 @@ export class AuthGuard implements CanActivate {
       email: user.email,
       roles: user.roles,
       permissions: user.permissions,
+      feature_tree: user.feature_tree
     };
 
     req.token = token;

@@ -21,6 +21,21 @@ export class RedisCache {
     await this.redis.set(key, rbacData, 'EX', ttlSeconds);
   }
 
+  async createCacheFeatureTree(userId: string, featureTreeData: string, ttlSeconds: number) {
+    const key = `feature_tree:${userId}`;
+    await this.redis.set(key, featureTreeData, 'EX', ttlSeconds);
+  }
+
+  async getCacheFeatureTree(userId: string): Promise<string | null> {
+    const key = `feature_tree:${userId}`;
+    return this.redis.get(key);
+  }
+
+  async deleteCacheFeatureTreeByUserId(userId: string) {
+    const key = `feature_tree:${userId}`;
+    await this.redis.del(key);
+  }
+
   async deleteCacheRbacByUserId(userId: string) {
     const key = `rbac:${userId}`;
     await this.redis.del(key);
@@ -33,15 +48,18 @@ export class RedisCache {
     }
   }
 
-  async findByJti(jti: string): Promise<{ token: string | null; rbac: string | null }> {
+  async findByJti(jti: string): Promise<{ token: string | null; rbac: string | null; featureTree: string | null }> {
     const tokenKey = `token:${jti}`;
     const token = await this.redis.get(tokenKey);
-    if (!token) return { token: null, rbac: null };
+    if (!token) return { token: null, rbac: null, featureTree: null };
 
     const rbacKey = `rbac:${token}`;
     const rbac = await this.redis.get(rbacKey);
 
-    return { token, rbac };
+    const featureTreeKey = `feature_tree:${token}`;
+    const featureTree = await this.redis.get(featureTreeKey);
+
+    return { token, rbac, featureTree };
   }
 
   async deleteSession(jti: string) {
@@ -52,6 +70,9 @@ export class RedisCache {
     if (userId) {
       const rbacKey = `rbac:${userId}`;
       await this.redis.del(rbacKey);
+
+      const featureTreeKey = `feature_tree:${userId}`;
+      await this.redis.del(featureTreeKey);
     }
   }
 }

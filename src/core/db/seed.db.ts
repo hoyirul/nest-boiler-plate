@@ -284,7 +284,7 @@ async function seed() {
 
         // USER MANAGEMENT CHILDREN
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "user",
           name: "Users",
           route_path: "/user-management/users",
@@ -293,7 +293,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "role",
           name: "Roles",
           route_path: "/user-management/roles",
@@ -302,7 +302,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "permission",
           name: "Permissions",
           route_path: "/user-management/permissions",
@@ -311,7 +311,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "status",
           name: "Statuses",
           route_path: "/user-management/statuses",
@@ -320,7 +320,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "feature",
           name: "Features",
           route_path: "/user-management/features",
@@ -329,7 +329,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'user-management')`,
+          parent_id: 1,
           code: "approval",
           name: "Approvals",
           route_path: "/user-management/approvals",
@@ -340,7 +340,7 @@ async function seed() {
 
         // MASTER DATA CHILDREN
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'organization')`,
+          parent_id: 2,
           code: "division",
           name: "Divisions",
           route_path: "/organization/divisions",
@@ -349,7 +349,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'organization')`,
+          parent_id: 2,
           code: "department",
           name: "Departments",
           route_path: "/organization/departments",
@@ -358,7 +358,7 @@ async function seed() {
           is_active: true,
         },
         {
-          parent_id: sql`(SELECT id FROM mst_features WHERE code = 'organization')`,
+          parent_id: 2,
           code: "position",
           name: "Positions",
           route_path: "/organization/positions",
